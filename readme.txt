@@ -2,7 +2,7 @@
 Contributors: matveb, joen, karmatosed
 Requires at least: 4.9.8
 Tested up to: 4.9
-Stable tag: 4.5.1
+Stable tag: 4.6.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -81,30 +81,4 @@ See also <a href="https://github.com/WordPress/gutenberg/blob/master/CONTRIBUTIN
 
 = Latest =
 
-* Fix issue with drag-and-drop in columns.
-* Fix TinyMCE list plugin registration.
-* Fix IE11 flexbox alignment when min-width is set.
-* Fix IE11 focus loss after TinyMCE init. Add IE check.
-* Fix getSelectedBlockClientId selector.
-* Fix issue where unregistering a block type would cause blocks that convert to it to break.
-* Fix Classic block not showing galleries on a grid.
-* Fix visual issues with Button block text wrap.
-* Fix modals in Edge.
-* Fix Categories block filter effect on the front-end.
-* Fix an issue where the block toolbar would cause an image to jump downwards when the wide or full - alignments were activated.
-* Apply IE11 input fix only when mounting TinyMCE.
-* Improve block preview styling.
-* Make the Image Link URL field readonly.
-* Disable HTML edit from Media & Text block.
-* Avoid loading theme editor styles if not existing (RTL languages).
-* Improve scoping of nested paragraph right-padding CSS rule.
-* Add e2e tests for the format API.
-* Merge similar text strings for i18n.
-* Move editor specific styles from style.scss to editor.scss in Cover block.
-* Simplify sidebar tabs aria-labels.
-* Remove onSplit from RichText docs.
-* Remove textdomain from the block library.
-* Avoid rendering AdminNotices compatibility component.
-* Avoid changing default wpautop priority.
-* Change @package names to WordPress.
-* Update published packages changelogs.
+* Parser: Make attribute parsing possessive (Fix High CPU usage).

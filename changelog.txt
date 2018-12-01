@@ -1,5 +1,9 @@
 == Changelog ==
 
+= 4.6.1 =
+
+* Parser: Make attribute parsing possessive (Fix High CPU usage).
+
 = 4.6.0 =
 
 * Fix issue with drag-and-drop in columns.
