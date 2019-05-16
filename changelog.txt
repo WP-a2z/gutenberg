@@ -1,5 +1,11 @@
 == Changelog ==
 
+= 5.6.1 =
+
+## Miscellaneous
+
+- Republish Gutenberg 5.6.0.
+
 = 5.6.0 =
 
 ## Enhancements
