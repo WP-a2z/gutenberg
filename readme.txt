@@ -2,7 +2,7 @@
 Contributors: matveb, joen, karmatosed
 Requires at least: 5.1.0
 Tested up to: 5.2
-Stable tag: 5.8.0
+Stable tag: 5.9.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
@@ -78,6 +78,14 @@ See also <a href="https://github.com/WordPress/gutenberg/blob/master/CONTRIBUTIN
 
 
 == Changelog ==
+
+For 5.9.1:
+
+### Bug Fixes
+
+* Fix the issue where [statics for deprecated components were not hoisted](https://github.com/WordPress/gutenberg/pull/16152)
+
+For 5.9.0:
 
 ### Features
 

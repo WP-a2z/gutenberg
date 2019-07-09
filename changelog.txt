@@ -1,5 +1,11 @@
 == Changelog ==
 
+= 5.9.1 =
+
+### Bug Fixes
+
+* Fix the issue where [statics for deprecated components were not hoisted](https://github.com/WordPress/gutenberg/pull/16152)
+
 = 5.9.0 =
 
 ### Features
