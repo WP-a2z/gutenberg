@@ -3,7 +3,7 @@
  * Plugin Name: Gutenberg
  * Plugin URI: https://github.com/WordPress/gutenberg
  * Description: Printing since 1440. This is the development plugin for the new block editor in core.
- * Version: 5.9.1
+ * Version: 5.9.2
  * Author: Gutenberg Team
  * Text Domain: gutenberg
  *
@@ -11,8 +11,8 @@
  */
 
 ### BEGIN AUTO-GENERATED DEFINES
-define( 'GUTENBERG_VERSION', '5.9.1' );
-define( 'GUTENBERG_GIT_COMMIT', 'd6bf345860c10dbc62d7c311cf516a836af707f8' );
+define( 'GUTENBERG_VERSION', '5.9.2' );
+define( 'GUTENBERG_GIT_COMMIT', 'd1fc85b266d26024cca433e0ccde6b3ad342edc1' );
 ### END AUTO-GENERATED DEFINES
 
 gutenberg_pre_init();

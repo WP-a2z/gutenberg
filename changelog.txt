@@ -1,5 +1,11 @@
 == Changelog ==
 
+= 5.9.2 =
+
+### Bug Fixes
+
+ - Fix Regression for blocks using InnerBlocks.Content from the editor package (support forwardRef components in the block serializer).
+
 = 5.9.1 =
 
 ### Bug Fixes
