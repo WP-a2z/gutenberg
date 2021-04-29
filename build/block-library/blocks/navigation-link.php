@@ -137,7 +137,7 @@ function gutenberg_render_block_core_navigation_link( $attributes, $content, $bl
 
 	if ( false !== $class_name ) {
 		$css_classes .= ' ' . $class_name;
-	};
+	}
 
 	$wrapper_attributes = get_block_wrapper_attributes(
 		array(

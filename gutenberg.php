@@ -5,7 +5,7 @@
  * Description: Printing since 1440. This is the development plugin for the new block editor in core.
  * Requires at least: 5.6
  * Requires PHP: 5.6
- * Version: 10.4.1
+ * Version: 10.5.0
  * Author: Gutenberg Team
  * Text Domain: gutenberg
  *
@@ -13,8 +13,8 @@
  */
 
 ### BEGIN AUTO-GENERATED DEFINES
-define( 'GUTENBERG_VERSION', '10.4.1' );
-define( 'GUTENBERG_GIT_COMMIT', '9cc7d2076dd4902a3e2ab9dbc2bc3f3e8fe5c111' );
+define( 'GUTENBERG_VERSION', '10.5.0' );
+define( 'GUTENBERG_GIT_COMMIT', '2c129b5827e7196e30f69e8fa4b37cf6568926a2' );
 ### END AUTO-GENERATED DEFINES
 
 gutenberg_pre_init();
@@ -27,7 +27,7 @@ gutenberg_pre_init();
 function gutenberg_wordpress_version_notice() {
 	echo '<div class="error"><p>';
 	/* translators: %s: Minimum required version */
-	printf( __( 'Gutenberg requires WordPress %s or later to function properly. Please upgrade WordPress before activating Gutenberg.', 'gutenberg' ), '5.3.0' );
+	printf( __( 'Gutenberg requires WordPress %s or later to function properly. Please upgrade WordPress before activating Gutenberg.', 'gutenberg' ), '5.6' );
 	echo '</p></div>';
 
 	deactivate_plugins( array( 'gutenberg/gutenberg.php' ) );
@@ -62,7 +62,10 @@ function gutenberg_pre_init() {
 	// Strip '-src' from the version string. Messes up version_compare().
 	$version = str_replace( '-src', '', $wp_version );
 
-	if ( version_compare( $version, '5.3.0', '<' ) ) {
+	// Compare against major release versions (X.Y) rather than minor (X.Y.Z)
+	// unless a minor release is the actual minimum requirement. WordPress reports
+	// X.Y for its major releases.
+	if ( version_compare( $version, '5.6', '<' ) ) {
 		add_action( 'admin_notices', 'gutenberg_wordpress_version_notice' );
 		return;
 	}
