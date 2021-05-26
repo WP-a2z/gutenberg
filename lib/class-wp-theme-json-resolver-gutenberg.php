@@ -10,19 +10,19 @@
  * Class that abstracts the processing
  * of the different data sources.
  */
-class WP_Theme_JSON_Resolver {
+class WP_Theme_JSON_Resolver_Gutenberg {
 
 	/**
 	 * Container for data coming from core.
 	 *
-	 * @var WP_Theme_JSON
+	 * @var WP_Theme_JSON_Gutenberg
 	 */
 	private static $core = null;
 
 	/**
 	 * Container for data coming from the theme.
 	 *
-	 * @var WP_Theme_JSON
+	 * @var WP_Theme_JSON_Gutenberg
 	 */
 	private static $theme = null;
 
@@ -36,7 +36,7 @@ class WP_Theme_JSON_Resolver {
 	/**
 	 * Container for data coming from the user.
 	 *
-	 * @var WP_Theme_JSON
+	 * @var WP_Theme_JSON_Gutenberg
 	 */
 	private static $user = null;
 
@@ -241,7 +241,7 @@ class WP_Theme_JSON_Resolver {
 	/**
 	 * Return core's origin config.
 	 *
-	 * @return WP_Theme_JSON Entity that holds core data.
+	 * @return WP_Theme_JSON_Gutenberg Entity that holds core data.
 	 */
 	public static function get_core_data() {
 		if ( null !== self::$core ) {
@@ -250,7 +250,7 @@ class WP_Theme_JSON_Resolver {
 
 		$config     = self::read_json_file( __DIR__ . '/experimental-default-theme.json' );
 		$config     = self::translate( $config );
-		self::$core = new WP_Theme_JSON( $config );
+		self::$core = new WP_Theme_JSON_Gutenberg( $config );
 
 		return self::$core;
 	}
@@ -268,7 +268,7 @@ class WP_Theme_JSON_Resolver {
 	 *
 	 * @param array $theme_support_data Theme support data in theme.json format.
 	 *
-	 * @return WP_Theme_JSON Entity that holds theme data.
+	 * @return WP_Theme_JSON_Gutenberg Entity that holds theme data.
 	 */
 	public static function get_theme_data( $theme_support_data = array() ) {
 		if ( null === self::$theme ) {
@@ -278,7 +278,7 @@ class WP_Theme_JSON_Resolver {
 				$theme_json_data = self::read_json_file( self::get_file_path_from_theme( 'experimental-theme.json' ) );
 			}
 			$theme_json_data = self::translate( $theme_json_data, wp_get_theme()->get( 'TextDomain' ) );
-			self::$theme     = new WP_Theme_JSON( $theme_json_data );
+			self::$theme     = new WP_Theme_JSON_Gutenberg( $theme_json_data );
 		}
 
 		if ( empty( $theme_support_data ) ) {
@@ -289,7 +289,7 @@ class WP_Theme_JSON_Resolver {
 		 * We want the presets and settings declared in theme.json
 		 * to override the ones declared via add_theme_support.
 		 */
-		$with_theme_supports = new WP_Theme_JSON( $theme_support_data );
+		$with_theme_supports = new WP_Theme_JSON_Gutenberg( $theme_support_data );
 		$with_theme_supports->merge( self::$theme );
 
 		return $with_theme_supports;
@@ -311,7 +311,6 @@ class WP_Theme_JSON_Resolver {
 	private static function get_user_data_from_custom_post_type( $should_create_cpt = false, $post_status_filter = array( 'publish' ) ) {
 		$user_cpt         = array();
 		$post_type_filter = 'wp_global_styles';
-		$post_name_filter = 'wp-global-styles-' . urlencode( wp_get_theme()->get_stylesheet() );
 		$recent_posts     = wp_get_recent_posts(
 			array(
 				'numberposts' => 1,
@@ -319,7 +318,13 @@ class WP_Theme_JSON_Resolver {
 				'order'       => 'desc',
 				'post_type'   => $post_type_filter,
 				'post_status' => $post_status_filter,
-				'name'        => $post_name_filter,
+				'tax_query'   => array(
+					array(
+						'taxonomy' => 'wp_theme',
+						'field'    => 'name',
+						'terms'    => wp_get_theme()->get_stylesheet(),
+					),
+				),
 			)
 		);
 
@@ -328,11 +333,14 @@ class WP_Theme_JSON_Resolver {
 		} elseif ( $should_create_cpt ) {
 			$cpt_post_id = wp_insert_post(
 				array(
-					'post_content' => '{"version": ' . WP_Theme_JSON::LATEST_SCHEMA . ', "isGlobalStylesUserThemeJSON": true }',
+					'post_content' => '{"version": ' . WP_Theme_JSON_Gutenberg::LATEST_SCHEMA . ', "isGlobalStylesUserThemeJSON": true }',
 					'post_status'  => 'publish',
 					'post_title'   => __( 'Custom Styles', 'default' ),
 					'post_type'    => $post_type_filter,
-					'post_name'    => $post_name_filter,
+					'post_name'    => 'wp-global-styles-' . urlencode( wp_get_theme()->get_stylesheet() ),
+					'tax_input'    => array(
+						'wp_theme' => array( wp_get_theme()->get_stylesheet() ),
+					),
 				),
 				true
 			);
@@ -345,7 +353,7 @@ class WP_Theme_JSON_Resolver {
 	/**
 	 * Returns the user's origin config.
 	 *
-	 * @return WP_Theme_JSON Entity that holds user data.
+	 * @return WP_Theme_JSON_Gutenberg Entity that holds user data.
 	 */
 	public static function get_user_data() {
 		if ( null !== self::$user ) {
@@ -360,7 +368,7 @@ class WP_Theme_JSON_Resolver {
 			$json_decoding_error = json_last_error();
 			if ( JSON_ERROR_NONE !== $json_decoding_error ) {
 				error_log( 'Error when decoding user schema: ' . json_last_error_msg() );
-				return new WP_Theme_JSON( $config );
+				return new WP_Theme_JSON_Gutenberg( $config );
 			}
 
 			// Very important to verify if the flag isGlobalStylesUserThemeJSON is true.
@@ -374,7 +382,7 @@ class WP_Theme_JSON_Resolver {
 				$config = $decoded_data;
 			}
 		}
-		self::$user = new WP_Theme_JSON( $config );
+		self::$user = new WP_Theme_JSON_Gutenberg( $config );
 
 		return self::$user;
 	}
@@ -395,21 +403,23 @@ class WP_Theme_JSON_Resolver {
 	 * for the paragraph block, and the theme has done it as well,
 	 * the user preference wins.
 	 *
-	 * @param array  $theme_support_data Existing block editor settings.
-	 *                                   Empty array by default.
+	 * @param array  $settings Existing block editor settings.
+	 *                         Empty array by default.
 	 * @param string $origin To what level should we merge data.
 	 *                       Valid values are 'theme' or 'user'.
 	 *                       Default is 'user'.
 	 *
-	 * @return WP_Theme_JSON
+	 * @return WP_Theme_JSON_Gutenberg
 	 */
-	public static function get_merged_data( $theme_support_data = array(), $origin = 'user' ) {
-		$result = new WP_Theme_JSON();
+	public static function get_merged_data( $settings = array(), $origin = 'user' ) {
+		$theme_support_data = WP_Theme_JSON_Gutenberg::get_from_editor_settings( $settings );
+
+		$result = new WP_Theme_JSON_Gutenberg();
 		$result->merge( self::get_core_data() );
 		$result->merge( self::get_theme_data( $theme_support_data ) );
 
 		if ( 'user' === $origin ) {
-			$result->merge( self::get_user_data() );
+			$result->merge( self::get_user_data(), 'update' );
 		}
 
 		return $result;
@@ -522,4 +532,4 @@ class WP_Theme_JSON_Resolver {
 
 }
 
-add_action( 'switch_theme', array( 'WP_Theme_JSON_Resolver', 'clean_cached_data' ) );
+add_action( 'switch_theme', array( 'WP_Theme_JSON_Resolver_Gutenberg', 'clean_cached_data' ) );

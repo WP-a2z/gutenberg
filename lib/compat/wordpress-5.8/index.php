@@ -7,7 +7,13 @@
  * @package gutenberg
  */
 
-if ( ! function_exists( 'construct_wp_query_args' ) ) {
+if ( ! class_exists( 'WP_Block_Editor_Context' ) ) {
+	require_once __DIR__ . '/class-wp-block-editor-context.php';
+}
+
+require_once __DIR__ . '/block-editor.php';
+
+if ( ! function_exists( 'build_query_vars_from_query_block' ) ) {
 	/**
 	 * Helper function that constructs a WP_Query args array from
 	 * a `Query` block properties.
@@ -19,7 +25,7 @@ if ( ! function_exists( 'construct_wp_query_args' ) ) {
 	 *
 	 * @return array Returns the constructed WP_Query arguments.
 	 */
-	function construct_wp_query_args( $block, $page ) {
+	function build_query_vars_from_query_block( $block, $page ) {
 		$query = array(
 			'post_type'    => 'post',
 			'order'        => 'DESC',
