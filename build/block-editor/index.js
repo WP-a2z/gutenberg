@@ -31106,7 +31106,7 @@ function RichTextWrapper({
     value,
     onChange,
     onFocus
-  }), isSelected && autocompleteProps.children, isSelected && Object(external_wp_element_["createElement"])(FormatEdit, {
+  }), isSelected && Object(external_wp_element_["createElement"])(FormatEdit, {
     value: value,
     onChange: onChange,
     onFocus: onFocus,
