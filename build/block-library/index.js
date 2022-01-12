@@ -37589,8 +37589,8 @@ const SiteLogo = _ref => {
   const currentWidth = width || defaultWidth;
   const ratio = naturalWidth / naturalHeight;
   const currentHeight = currentWidth / ratio;
-  const minWidth = naturalWidth < naturalHeight ? MIN_SIZE : MIN_SIZE * ratio;
-  const minHeight = naturalHeight < naturalWidth ? MIN_SIZE : MIN_SIZE / ratio; // With the current implementation of ResizableBox, an image needs an
+  const minWidth = naturalWidth < naturalHeight ? MIN_SIZE : Math.ceil(MIN_SIZE * ratio);
+  const minHeight = naturalHeight < naturalWidth ? MIN_SIZE : Math.ceil(MIN_SIZE / ratio); // With the current implementation of ResizableBox, an image needs an
   // explicit pixel value for the max-width. In absence of being able to
   // set the content-width, this max-width is currently dictated by the
   // vanilla editor style. The following variable adds a buffer to this
