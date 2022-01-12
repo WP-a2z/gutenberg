@@ -40422,6 +40422,8 @@ const spacer_deprecated_deprecated = [{
 
 
 function DimensionInput(_ref) {
+  var _ref2;
+
   let {
     label,
     onChange,
@@ -40433,7 +40435,7 @@ function DimensionInput(_ref) {
   // percentage, since this is relative to the parent container. This
   // unit is disabled from the UI.
 
-  const availableUnitSettings = (0,external_wp_blockEditor_namespaceObject.useSetting)('spacing.units').filter(availableUnit => availableUnit !== '%');
+  const availableUnitSettings = (_ref2 = (0,external_wp_blockEditor_namespaceObject.useSetting)('spacing.units') || undefined) === null || _ref2 === void 0 ? void 0 : _ref2.filter(availableUnit => availableUnit !== '%');
   const units = (0,external_wp_components_namespaceObject.__experimentalUseCustomUnits)({
     availableUnits: availableUnitSettings || ['px', 'em', 'rem', 'vw', 'vh'],
     defaultValues: {
@@ -40477,14 +40479,14 @@ function DimensionInput(_ref) {
   }));
 }
 
-function SpacerControls(_ref2) {
+function SpacerControls(_ref3) {
   let {
     setAttributes,
     orientation,
     height,
     width,
     isResizing
-  } = _ref2;
+  } = _ref3;
   return (0,external_wp_element_namespaceObject.createElement)(external_wp_blockEditor_namespaceObject.InspectorControls, null, (0,external_wp_element_namespaceObject.createElement)(external_wp_components_namespaceObject.PanelBody, {
     title: (0,external_wp_i18n_namespaceObject.__)('Spacer settings')
   }, orientation === 'horizontal' && (0,external_wp_element_namespaceObject.createElement)(DimensionInput, {
