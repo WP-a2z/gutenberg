@@ -24130,7 +24130,7 @@ function createListBlockFromDOMElement(listElement) {
     const children = Array.from(listItem.childNodes).filter(node => node.nodeType !== node.TEXT_NODE || node.textContent.trim().length !== 0);
     children.reverse();
     const [nestedList, ...nodes] = children;
-    const hasNestedList = nestedList.tagName === 'UL' || nestedList.tagName === 'OL';
+    const hasNestedList = (nestedList === null || nestedList === void 0 ? void 0 : nestedList.tagName) === 'UL' || (nestedList === null || nestedList === void 0 ? void 0 : nestedList.tagName) === 'OL';
 
     if (!hasNestedList) {
       return (0,external_wp_blocks_namespaceObject.createBlock)('core/list-item', {
