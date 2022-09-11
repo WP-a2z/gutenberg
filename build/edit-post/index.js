@@ -3868,13 +3868,14 @@ function VisualEditor(_ref2) {
       return { ...defaultLayout,
         type: 'constrained'
       };
-    } // Set constrained layout for classic themes so all alignments are supported.
+    } // Set default layout for classic themes so all alignments are supported.
 
 
     return {
-      type: 'constrained'
+      type: 'default'
     };
   }, [isTemplateMode, themeSupportsLayout, defaultLayout]);
+  const blockListLayoutClass = themeSupportsLayout ? 'is-layout-constrained' : 'is-layout-flow';
   const titleRef = (0,external_wp_element_namespaceObject.useRef)();
   (0,external_wp_element_namespaceObject.useEffect)(() => {
     var _titleRef$current;
@@ -3928,7 +3929,7 @@ function VisualEditor(_ref2) {
     blockName: wrapperBlockName,
     uniqueId: wrapperUniqueId
   }, (0,external_wp_element_namespaceObject.createElement)(external_wp_blockEditor_namespaceObject.BlockList, {
-    className: isTemplateMode ? 'wp-site-blocks' : 'is-layout-constrained' // Ensure root level blocks receive default/flow blockGap styling rules.
+    className: isTemplateMode ? 'wp-site-blocks' : blockListLayoutClass // Ensure root level blocks receive default/flow blockGap styling rules.
     ,
     __experimentalLayout: layout
   }))))), (0,external_wp_element_namespaceObject.createElement)(external_wp_blockEditor_namespaceObject.__unstableBlockSettingsMenuFirstItem, null, _ref3 => {
