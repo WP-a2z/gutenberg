@@ -1,16 +1,16 @@
-"use strict";
-(globalThis["webpackChunkgutenberg"] = globalThis["webpackChunkgutenberg"] || []).push([[9],{
+/******/ (() => { // webpackBootstrap
+/******/ 	"use strict";
+var __webpack_exports__ = {};
 
-/***/ 9:
-/***/ ((__unused_webpack_module, __unused_webpack___webpack_exports__, __webpack_require__) => {
-
-/* harmony import */ var _utils_interactivity__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(744);
+;// CONCATENATED MODULE: external ["wp","interactivity"]
+const external_wp_interactivity_namespaceObject = window["wp"]["interactivity"];
+;// CONCATENATED MODULE: ./packages/block-library/build-module/image/view-interactivity.js
 /**
- * Internal dependencies
+ * WordPress dependencies
  */
 
 const focusableSelectors = ['a[href]', 'area[href]', 'input:not([disabled]):not([type="hidden"]):not([aria-hidden])', 'select:not([disabled]):not([aria-hidden])', 'textarea:not([disabled]):not([aria-hidden])', 'button:not([disabled]):not([aria-hidden])', 'iframe', 'object', 'embed', '[contenteditable]', '[tabindex]:not([tabindex^="-"])'];
-(0,_utils_interactivity__WEBPACK_IMPORTED_MODULE_0__/* .store */ .h)({
+(0,external_wp_interactivity_namespaceObject.store)({
   actions: {
     core: {
       image: {
@@ -18,30 +18,36 @@ const focusableSelectors = ['a[href]', 'area[href]', 'input:not([disabled]):not(
           context,
           event
         }) => {
+          // We can't initialize the lightbox until the reference
+          // image is loaded, otherwise the UX is broken.
+          if (!context.core.image.imageLoaded) {
+            return;
+          }
+
           context.core.image.initialized = true;
           context.core.image.lastFocusedElement = window.document.activeElement;
-          context.core.image.scrollDelta = 0; // Since the img is hidden and its src not loaded until
+          context.core.image.scrollDelta = 0;
+          context.core.image.lightboxEnabled = true;
+
+          if (context.core.image.lightboxAnimation === 'zoom') {
+            setZoomStyles(event.target.nextElementSibling, context, event);
+          } // Hide overflow only when the animation is in progress,
+          // otherwise the removal of the scrollbars will draw attention
+          // to itself and look like an error
+
+
+          document.documentElement.classList.add('has-lightbox-open'); // Since the img is hidden and its src not loaded until
           // the lightbox is opened, let's create an img element on the fly
           // so we can get the dimensions we need to calculate the styles
 
+          context.core.image.preloadInitialized = true;
           const imgDom = document.createElement('img');
 
           imgDom.onload = function () {
-            // Enable the lightbox only after the image
-            // is loaded to prevent flashing of unstyled content
-            context.core.image.lightboxEnabled = true;
-
-            if (context.core.image.lightboxAnimation === 'zoom') {
-              setZoomStyles(imgDom, context, event);
-            } // Hide overflow only when the animation is in progress,
-            // otherwise the removal of the scrollbars will draw attention
-            // to itself and look like an error
-
-
-            document.documentElement.classList.add('has-lightbox-open');
+            context.core.image.activateLargeImage = true;
           };
 
-          imgDom.setAttribute('src', context.core.image.imageSrc);
+          imgDom.setAttribute('src', context.core.image.imageUploadedSrc);
         },
         hideLightbox: async ({
           context,
@@ -102,6 +108,15 @@ const focusableSelectors = ['a[href]', 'area[href]', 'input:not([disabled]):not(
               });
             }
           }
+        },
+        preloadLightboxImage: ({
+          context
+        }) => {
+          if (!context.core.image.preloadInitialized) {
+            context.core.image.preloadInitialized = true;
+            const imgDom = document.createElement('img');
+            imgDom.setAttribute('src', context.core.image.imageUploadedSrc);
+          }
         }
       }
     }
@@ -114,10 +129,15 @@ const focusableSelectors = ['a[href]', 'area[href]', 'input:not([disabled]):not(
         }) => {
           return context.core.image.lightboxEnabled ? 'dialog' : '';
         },
-        imageSrc: ({
+        responsiveImgSrc: ({
           context
         }) => {
-          return context.core.image.initialized ? context.core.image.imageSrc : '';
+          return context.core.image.activateLargeImage && context.core.image.hideAnimationEnabled ? '' : context.core.image.imageCurrentSrc;
+        },
+        enlargedImgSrc: ({
+          context
+        }) => {
+          return context.core.image.initialized ? context.core.image.imageUploadedSrc : '';
         }
       }
     }
@@ -125,6 +145,20 @@ const focusableSelectors = ['a[href]', 'area[href]', 'input:not([disabled]):not(
   effects: {
     core: {
       image: {
+        setCurrentSrc: ({
+          context,
+          ref
+        }) => {
+          if (ref.complete) {
+            context.core.image.imageLoaded = true;
+            context.core.image.imageCurrentSrc = ref.currentSrc;
+          } else {
+            ref.addEventListener('load', function () {
+              context.core.image.imageLoaded = true;
+              context.core.image.imageCurrentSrc = this.currentSrc;
+            });
+          }
+        },
         initLightbox: async ({
           context,
           ref
@@ -145,37 +179,45 @@ const focusableSelectors = ['a[href]', 'area[href]', 'input:not([disabled]):not(
 });
 
 function setZoomStyles(imgDom, context, event) {
-  let targetWidth = imgDom.naturalWidth;
-  let targetHeight = imgDom.naturalHeight;
-  const verticalPadding = 40; // As per the design, let's allow the image to stretch
-  // to the full width of its containing figure, but for the height,
-  // constrain it with a fixed padding
+  // Typically, we use the image's full-sized dimensions. If those
+  // dimensions have not been set (i.e. an external image with only one size),
+  // the image's dimensions in the lightbox are the same
+  // as those of the image in the content.
+  let targetWidth = context.core.image.targetWidth !== 'none' ? context.core.image.targetWidth : event.target.nextElementSibling.naturalWidth;
+  let targetHeight = context.core.image.targetHeight !== 'none' ? context.core.image.targetHeight : event.target.nextElementSibling.naturalHeight; // Since the lightbox image has `position:absolute`, it
+  // ignores its parent's padding, so we need to set padding here
+  // to calculate dimensions and positioning.
+  // As per the design, let's constrain the height with fixed padding
 
-  const containerWidth = context.core.image.figureRef.clientWidth; // The lightbox image has `positione:absolute` and
-  // ignores its parent's padding, so let's set the padding here,
-  // to be used when calculating the image width and positioning
+  const containerOuterHeight = window.innerHeight;
+  const verticalPadding = 40;
+  const containerInnerHeight = containerOuterHeight - verticalPadding * 2; // Let's set a variable horizontal padding based on the container width
 
+  const containerOuterWidth = window.innerWidth;
   let horizontalPadding = 0;
 
-  if (containerWidth > 480) {
+  if (containerOuterWidth > 480) {
     horizontalPadding = 40;
-  } else if (containerWidth > 1920) {
+  } else if (containerOuterWidth > 1920) {
     horizontalPadding = 80;
   }
 
-  const containerHeight = context.core.image.figureRef.clientHeight - verticalPadding * 2; // Check difference between the image and figure dimensions
+  const containerInnerWidth = containerOuterWidth - horizontalPadding * 2; // Check difference between the image and figure dimensions
 
-  const widthOverflow = Math.abs(Math.min(containerWidth - targetWidth, 0));
-  const heightOverflow = Math.abs(Math.min(containerHeight - targetHeight, 0)); // If image is larger than its container any dimension, resize along its largest axis.
-  // For vertically oriented devices, always maximize the width.
+  const widthOverflow = Math.abs(Math.min(containerInnerWidth - targetWidth, 0));
+  const heightOverflow = Math.abs(Math.min(containerInnerHeight - targetHeight, 0)); // If the image is larger than the container, let's resize
+  // it along the greater axis relative to the container
 
   if (widthOverflow > 0 || heightOverflow > 0) {
-    if (widthOverflow >= heightOverflow || containerHeight >= containerWidth) {
-      targetWidth = containerWidth - horizontalPadding * 2;
-      targetHeight = imgDom.naturalHeight * (targetWidth / imgDom.naturalWidth);
+    const containerInnerAspectRatio = containerInnerWidth / containerInnerHeight;
+    const imageAspectRatio = targetWidth / targetHeight;
+
+    if (imageAspectRatio > containerInnerAspectRatio) {
+      targetWidth = containerInnerWidth;
+      targetHeight = targetWidth * imgDom.naturalHeight / imgDom.naturalWidth;
     } else {
-      targetHeight = containerHeight;
-      targetWidth = imgDom.naturalWidth * (targetHeight / imgDom.naturalHeight);
+      targetHeight = containerInnerHeight;
+      targetWidth = targetHeight * imgDom.naturalWidth / imgDom.naturalHeight;
     }
   } // The reference img element lies adjacent to the event target button in the DOM
 
@@ -189,18 +231,18 @@ function setZoomStyles(imgDom, context, event) {
 
   let targetLeft = 0;
 
-  if (targetWidth >= containerWidth) {
+  if (targetWidth >= containerInnerWidth) {
     targetLeft = horizontalPadding;
   } else {
-    targetLeft = (containerWidth - targetWidth) / 2;
+    targetLeft = (containerOuterWidth - targetWidth) / 2;
   }
 
   let targetTop = 0;
 
-  if (targetHeight >= containerHeight) {
+  if (targetHeight >= containerInnerHeight) {
     targetTop = verticalPadding;
   } else {
-    targetTop = (containerHeight - targetHeight) / 2 + verticalPadding;
+    targetTop = (containerOuterHeight - targetHeight) / 2;
   }
 
   const root = document.documentElement;
@@ -214,12 +256,5 @@ function setZoomStyles(imgDom, context, event) {
   root.style.setProperty('--lightbox-target-top-position', targetTop + 'px');
 }
 
-/***/ })
-
-},
-/******/ __webpack_require__ => { // webpackRuntimeModules
-/******/ var __webpack_exec__ = (moduleId) => (__webpack_require__(__webpack_require__.s = moduleId))
-/******/ __webpack_require__.O(0, [666], () => (__webpack_exec__(9)));
-/******/ var __webpack_exports__ = __webpack_require__.O();
-/******/ }
-]);
+/******/ })()
+;
