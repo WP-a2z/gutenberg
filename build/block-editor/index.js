@@ -51600,13 +51600,7 @@ function LinkControl({
           settings: settings?.filter(({
             id
           }) => id === 'opensInNewTab'),
-          onChange: ({
-            opensInNewTab
-          }) => {
-            onChange({
-              opensInNewTab
-            });
-          }
+          onChange: onChange
         });
       }
     },
