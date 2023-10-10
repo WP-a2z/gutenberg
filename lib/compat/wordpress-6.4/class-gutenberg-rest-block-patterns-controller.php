@@ -26,11 +26,17 @@ class Gutenberg_REST_Block_Patterns_Controller extends Gutenberg_REST_Block_Patt
 	 */
 	public function prepare_item_for_response( $item, $request ) {
 		$response = parent::prepare_item_for_response( $item, $request );
-		if ( ! gutenberg_is_experiment_enabled( 'gutenberg-block-hooks' ) ) {
+
+		// Run the polyfill for Block Hooks only if it isn't already handled in WordPress core.
+		if ( function_exists( 'traverse_and_serialize_blocks' ) ) {
 			return $response;
 		}
 
 		$data = $response->get_data();
+
+		if ( empty( $data['content'] ) ) {
+			return $response;
+		}
 
 		$blocks          = parse_blocks( $data['content'] );
 		$data['content'] = gutenberg_serialize_blocks( $blocks ); // Serialize or render?

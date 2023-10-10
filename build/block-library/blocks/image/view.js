@@ -4,7 +4,7 @@ var __webpack_exports__ = {};
 
 ;// CONCATENATED MODULE: external ["wp","interactivity"]
 const external_wp_interactivity_namespaceObject = window["wp"]["interactivity"];
-;// CONCATENATED MODULE: ./packages/block-library/build-module/image/view-interactivity.js
+;// CONCATENATED MODULE: ./packages/block-library/build-module/image/view.js
 /**
  * WordPress dependencies
  */
