@@ -13670,12 +13670,15 @@ function mediaUpload({
   } = (0,external_wp_data_namespaceObject.select)(store_store);
   const wpAllowedMimeTypes = getEditorSettings().allowedMimeTypes;
   maxUploadFileSize = maxUploadFileSize || getEditorSettings().maxUploadFileSize;
+  const currentPostId = getCurrentPostId();
   (0,external_wp_mediaUtils_namespaceObject.uploadMedia)({
     allowedTypes,
     filesList,
     onFileChange,
     additionalData: {
-      post: getCurrentPostId(),
+      ...(!isNaN(currentPostId) ? {
+        post: currentPostId
+      } : {}),
       ...additionalData
     },
     maxUploadFileSize,
