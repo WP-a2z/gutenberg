@@ -152,7 +152,7 @@ __webpack_require__.d(__webpack_exports__, {
   PluginSidebarMoreMenuItem: function() { return /* reexport */ PluginSidebarMoreMenuItem; },
   __experimentalFullscreenModeClose: function() { return /* reexport */ fullscreen_mode_close; },
   __experimentalMainDashboardButton: function() { return /* reexport */ main_dashboard_button; },
-  __experimentalPluginPostExcerpt: function() { return /* reexport */ plugin_post_excerpt; },
+  __experimentalPluginPostExcerpt: function() { return /* binding */ __experimentalPluginPostExcerpt; },
   initializeEditor: function() { return /* binding */ initializeEditor; },
   reinitializeEditor: function() { return /* binding */ reinitializeEditor; },
   store: function() { return /* reexport */ store_store; }
@@ -2259,24 +2259,6 @@ var external_wp_coreCommands_namespaceObject = window["wp"]["coreCommands"];
  * WordPress dependencies
  */
 
-
-/**
- * Reducer storing the list of all programmatically removed panels.
- *
- * @param {Array}  state  Current state.
- * @param {Object} action Action object.
- *
- * @return {Array} Updated state.
- */
-function removedPanels(state = [], action) {
-  switch (action.type) {
-    case 'REMOVE_PANEL':
-      if (!state.includes(action.panelName)) {
-        return [...state, action.panelName];
-      }
-  }
-  return state;
-}
 function publishSidebarActive(state = false, action) {
   switch (action.type) {
     case 'OPEN_PUBLISH_SIDEBAR':
@@ -2348,44 +2330,6 @@ function metaBoxLocations(state = {}, action) {
 }
 
 /**
- * Reducer to set the block inserter panel open or closed.
- *
- * Note: this reducer interacts with the list view panel reducer
- * to make sure that only one of the two panels is open at the same time.
- *
- * @param {Object} state  Current state.
- * @param {Object} action Dispatched action.
- */
-function blockInserterPanel(state = false, action) {
-  switch (action.type) {
-    case 'SET_IS_LIST_VIEW_OPENED':
-      return action.isOpen ? false : state;
-    case 'SET_IS_INSERTER_OPENED':
-      return action.value;
-  }
-  return state;
-}
-
-/**
- * Reducer to set the list view panel open or closed.
- *
- * Note: this reducer interacts with the inserter panel reducer
- * to make sure that only one of the two panels is open at the same time.
- *
- * @param {Object} state  Current state.
- * @param {Object} action Dispatched action.
- */
-function listViewPanel(state = false, action) {
-  switch (action.type) {
-    case 'SET_IS_INSERTER_OPENED':
-      return action.value ? false : state;
-    case 'SET_IS_LIST_VIEW_OPENED':
-      return action.isOpen;
-  }
-  return state;
-}
-
-/**
  * Reducer tracking whether meta boxes are initialized.
  *
  * @param {boolean} state
@@ -2407,10 +2351,7 @@ const metaBoxes = (0,external_wp_data_namespaceObject.combineReducers)({
 });
 /* harmony default export */ var store_reducer = ((0,external_wp_data_namespaceObject.combineReducers)({
   metaBoxes,
-  publishSidebarActive,
-  removedPanels,
-  blockInserterPanel,
-  listViewPanel
+  publishSidebarActive
 }));
 
 ;// CONCATENATED MODULE: external ["wp","apiFetch"]
@@ -2555,6 +2496,8 @@ function togglePublishSidebar() {
 /**
  * Returns an action object used to enable or disable a panel in the editor.
  *
+ * @deprecated
+ *
  * @param {string} panelName A string that identifies the panel to enable or disable.
  *
  * @return {Object} Action object.
@@ -2562,57 +2505,48 @@ function togglePublishSidebar() {
 const toggleEditorPanelEnabled = panelName => ({
   registry
 }) => {
-  var _registry$select$get;
-  const inactivePanels = (_registry$select$get = registry.select(external_wp_preferences_namespaceObject.store).get('core/edit-post', 'inactivePanels')) !== null && _registry$select$get !== void 0 ? _registry$select$get : [];
-  const isPanelInactive = !!inactivePanels?.includes(panelName);
-
-  // If the panel is inactive, remove it to enable it, else add it to
-  // make it inactive.
-  let updatedInactivePanels;
-  if (isPanelInactive) {
-    updatedInactivePanels = inactivePanels.filter(invactivePanelName => invactivePanelName !== panelName);
-  } else {
-    updatedInactivePanels = [...inactivePanels, panelName];
-  }
-  registry.dispatch(external_wp_preferences_namespaceObject.store).set('core/edit-post', 'inactivePanels', updatedInactivePanels);
+  external_wp_deprecated_default()("dispatch( 'core/edit-post' ).toggleEditorPanelEnabled", {
+    since: '6.5',
+    alternative: "dispatch( 'core/editor').toggleEditorPanelEnabled"
+  });
+  registry.dispatch(external_wp_editor_namespaceObject.store).toggleEditorPanelEnabled(panelName);
 };
 
 /**
  * Opens a closed panel and closes an open panel.
+ *
+ * @deprecated
  *
  * @param {string} panelName A string that identifies the panel to open or close.
  */
 const toggleEditorPanelOpened = panelName => ({
   registry
 }) => {
-  var _registry$select$get2;
-  const openPanels = (_registry$select$get2 = registry.select(external_wp_preferences_namespaceObject.store).get('core/edit-post', 'openPanels')) !== null && _registry$select$get2 !== void 0 ? _registry$select$get2 : [];
-  const isPanelOpen = !!openPanels?.includes(panelName);
-
-  // If the panel is open, remove it to close it, else add it to
-  // make it open.
-  let updatedOpenPanels;
-  if (isPanelOpen) {
-    updatedOpenPanels = openPanels.filter(openPanelName => openPanelName !== panelName);
-  } else {
-    updatedOpenPanels = [...openPanels, panelName];
-  }
-  registry.dispatch(external_wp_preferences_namespaceObject.store).set('core/edit-post', 'openPanels', updatedOpenPanels);
+  external_wp_deprecated_default()("dispatch( 'core/edit-post' ).toggleEditorPanelOpened", {
+    since: '6.5',
+    alternative: "dispatch( 'core/editor').toggleEditorPanelOpened"
+  });
+  registry.dispatch(external_wp_editor_namespaceObject.store).toggleEditorPanelOpened(panelName);
 };
 
 /**
  * Returns an action object used to remove a panel from the editor.
  *
+ * @deprecated
+ *
  * @param {string} panelName A string that identifies the panel to remove.
  *
  * @return {Object} Action object.
  */
-function removeEditorPanel(panelName) {
-  return {
-    type: 'REMOVE_PANEL',
-    panelName
-  };
-}
+const removeEditorPanel = panelName => ({
+  registry
+}) => {
+  external_wp_deprecated_default()("dispatch( 'core/edit-post' ).removeEditorPanel", {
+    since: '6.5',
+    alternative: "dispatch( 'core/editor').removeEditorPanel"
+  });
+  registry.dispatch(external_wp_editor_namespaceObject.store).removeEditorPanel(panelName);
+};
 
 /**
  * Triggers an action used to toggle a feature flag.
@@ -2666,11 +2600,11 @@ const togglePinnedPluginItem = pluginName => ({
 const updatePreferredStyleVariations = (blockName, blockStyle) => ({
   registry
 }) => {
-  var _registry$select$get3;
+  var _registry$select$get;
   if (!blockName) {
     return;
   }
-  const existingVariations = (_registry$select$get3 = registry.select(external_wp_preferences_namespaceObject.store).get('core/edit-post', 'preferredStyleVariations')) !== null && _registry$select$get3 !== void 0 ? _registry$select$get3 : {};
+  const existingVariations = (_registry$select$get = registry.select(external_wp_preferences_namespaceObject.store).get('core/edit-post', 'preferredStyleVariations')) !== null && _registry$select$get !== void 0 ? _registry$select$get : {};
 
   // When the blockStyle is omitted, remove the block's preferred variation.
   if (!blockStyle) {
@@ -2696,8 +2630,8 @@ const updatePreferredStyleVariations = (blockName, blockStyle) => ({
 const showBlockTypes = blockNames => ({
   registry
 }) => {
-  var _registry$select$get4;
-  const existingBlockNames = (_registry$select$get4 = registry.select(external_wp_preferences_namespaceObject.store).get('core/edit-post', 'hiddenBlockTypes')) !== null && _registry$select$get4 !== void 0 ? _registry$select$get4 : [];
+  var _registry$select$get2;
+  const existingBlockNames = (_registry$select$get2 = registry.select(external_wp_preferences_namespaceObject.store).get('core/edit-post', 'hiddenBlockTypes')) !== null && _registry$select$get2 !== void 0 ? _registry$select$get2 : [];
   const newBlockNames = existingBlockNames.filter(type => !(Array.isArray(blockNames) ? blockNames : [blockNames]).includes(type));
   registry.dispatch(external_wp_preferences_namespaceObject.store).set('core/edit-post', 'hiddenBlockTypes', newBlockNames);
 };
@@ -2710,8 +2644,8 @@ const showBlockTypes = blockNames => ({
 const hideBlockTypes = blockNames => ({
   registry
 }) => {
-  var _registry$select$get5;
-  const existingBlockNames = (_registry$select$get5 = registry.select(external_wp_preferences_namespaceObject.store).get('core/edit-post', 'hiddenBlockTypes')) !== null && _registry$select$get5 !== void 0 ? _registry$select$get5 : [];
+  var _registry$select$get3;
+  const existingBlockNames = (_registry$select$get3 = registry.select(external_wp_preferences_namespaceObject.store).get('core/edit-post', 'hiddenBlockTypes')) !== null && _registry$select$get3 !== void 0 ? _registry$select$get3 : [];
   const mergedBlockNames = new Set([...existingBlockNames, ...(Array.isArray(blockNames) ? blockNames : [blockNames])]);
   registry.dispatch(external_wp_preferences_namespaceObject.store).set('core/edit-post', 'hiddenBlockTypes', [...mergedBlockNames]);
 };
@@ -2805,8 +2739,6 @@ function metaBoxUpdatesFailure() {
  * @deprecated
  *
  * @param {string} deviceType
- *
- * @return {Object} Action object.
  */
 const __experimentalSetPreviewDeviceType = deviceType => ({
   registry
@@ -2822,40 +2754,35 @@ const __experimentalSetPreviewDeviceType = deviceType => ({
 /**
  * Returns an action object used to open/close the inserter.
  *
- * @param {boolean|Object} value                Whether the inserter should be
- *                                              opened (true) or closed (false).
- *                                              To specify an insertion point,
- *                                              use an object.
- * @param {string}         value.rootClientId   The root client ID to insert at.
- * @param {number}         value.insertionIndex The index to insert at.
+ * @deprecated
  *
- * @return {Object} Action object.
+ * @param {boolean|Object} value Whether the inserter should be opened (true) or closed (false).
  */
-function setIsInserterOpened(value) {
-  return {
-    type: 'SET_IS_INSERTER_OPENED',
-    value
-  };
-}
+const setIsInserterOpened = value => ({
+  registry
+}) => {
+  external_wp_deprecated_default()("dispatch( 'core/edit-post' ).setIsInserterOpened", {
+    since: '6.5',
+    alternative: "dispatch( 'core/editor').setIsInserterOpened"
+  });
+  registry.dispatch(external_wp_editor_namespaceObject.store).setIsInserterOpened(value);
+};
 
 /**
  * Returns an action object used to open/close the list view.
  *
+ * @deprecated
+ *
  * @param {boolean} isOpen A boolean representing whether the list view should be opened or closed.
- * @return {Object} Action object.
  */
 const setIsListViewOpened = isOpen => ({
-  dispatch,
   registry
 }) => {
-  const isDistractionFree = registry.select(external_wp_preferences_namespaceObject.store).get('core/edit-post', 'distractionFree');
-  if (isDistractionFree && isOpen) {
-    dispatch.toggleDistractionFree();
-  }
-  dispatch({
-    type: 'SET_IS_LIST_VIEW_OPENED',
-    isOpen
+  external_wp_deprecated_default()("dispatch( 'core/edit-post' ).setIsListViewOpened", {
+    since: '6.5',
+    alternative: "dispatch( 'core/editor').setIsListViewOpened"
   });
+  registry.dispatch(external_wp_editor_namespaceObject.store).setIsListViewOpened(isOpen);
 };
 
 /**
@@ -2947,8 +2874,8 @@ const toggleDistractionFree = () => ({
   if (!isDistractionFree) {
     registry.batch(() => {
       registry.dispatch(external_wp_preferences_namespaceObject.store).set('core/edit-post', 'fixedToolbar', true);
-      dispatch.setIsInserterOpened(false);
-      dispatch.setIsListViewOpened(false);
+      registry.dispatch(external_wp_editor_namespaceObject.store).setIsInserterOpened(false);
+      registry.dispatch(external_wp_editor_namespaceObject.store).setIsListViewOpened(false);
       dispatch.closeGeneralSidebar();
     });
   }
@@ -3259,6 +3186,18 @@ function isShallowEqual(a, b, fromIndex) {
 	return /** @type {S & EnhancedSelector} */ (callSelector);
 }
 
+;// CONCATENATED MODULE: external ["wp","privateApis"]
+var external_wp_privateApis_namespaceObject = window["wp"]["privateApis"];
+;// CONCATENATED MODULE: ./packages/edit-post/build-module/lock-unlock.js
+/**
+ * WordPress dependencies
+ */
+
+const {
+  lock,
+  unlock
+} = (0,external_wp_privateApis_namespaceObject.__dangerousOptInToUnstableAPIsOnlyForCoreModules)('I know using unstable features means my theme or plugin will inevitably break in the next version of WordPress.', '@wordpress/edit-post');
+
 ;// CONCATENATED MODULE: ./packages/edit-post/build-module/store/selectors.js
 /**
  * External dependencies
@@ -3274,13 +3213,13 @@ function isShallowEqual(a, b, fromIndex) {
 
 
 
+
+/**
+ * Internal dependencies
+ */
+
 const EMPTY_ARRAY = [];
 const EMPTY_OBJECT = {};
-const EMPTY_INSERTION_POINT = {
-  rootClientId: undefined,
-  insertionIndex: undefined,
-  filterValue: undefined
-};
 
 /**
  * Returns the current editing mode.
@@ -3468,18 +3407,26 @@ function isPublishSidebarOpened(state) {
  * Returns true if the given panel was programmatically removed, or false otherwise.
  * All panels are not removed by default.
  *
+ * @deprecated
+ *
  * @param {Object} state     Global application state.
  * @param {string} panelName A string that identifies the panel.
  *
  * @return {boolean} Whether or not the panel is removed.
  */
-function isEditorPanelRemoved(state, panelName) {
-  return state.removedPanels.includes(panelName);
-}
+const isEditorPanelRemoved = (0,external_wp_data_namespaceObject.createRegistrySelector)(select => (state, panelName) => {
+  external_wp_deprecated_default()(`select( 'core/edit-post' ).isEditorPanelRemoved`, {
+    since: '6.5',
+    alternative: `select( 'core/editor' ).isEditorPanelRemoved`
+  });
+  return select(external_wp_editor_namespaceObject.store).isEditorPanelRemoved(panelName);
+});
 
 /**
  * Returns true if the given panel is enabled, or false otherwise. Panels are
  * enabled by default.
+ *
+ * @deprecated
  *
  * @param {Object} state     Global application state.
  * @param {string} panelName A string that identifies the panel.
@@ -3487,13 +3434,18 @@ function isEditorPanelRemoved(state, panelName) {
  * @return {boolean} Whether or not the panel is enabled.
  */
 const isEditorPanelEnabled = (0,external_wp_data_namespaceObject.createRegistrySelector)(select => (state, panelName) => {
-  const inactivePanels = select(external_wp_preferences_namespaceObject.store).get('core/edit-post', 'inactivePanels');
-  return !isEditorPanelRemoved(state, panelName) && !inactivePanels?.includes(panelName);
+  external_wp_deprecated_default()(`select( 'core/edit-post' ).isEditorPanelEnabled`, {
+    since: '6.5',
+    alternative: `select( 'core/editor' ).isEditorPanelEnabled`
+  });
+  return select(external_wp_editor_namespaceObject.store).isEditorPanelEnabled(panelName);
 });
 
 /**
  * Returns true if the given panel is open, or false otherwise. Panels are
  * closed by default.
+ *
+ * @deprecated
  *
  * @param {Object} state     Global application state.
  * @param {string} panelName A string that identifies the panel.
@@ -3501,8 +3453,11 @@ const isEditorPanelEnabled = (0,external_wp_data_namespaceObject.createRegistryS
  * @return {boolean} Whether or not the panel is open.
  */
 const isEditorPanelOpened = (0,external_wp_data_namespaceObject.createRegistrySelector)(select => (state, panelName) => {
-  const openPanels = select(external_wp_preferences_namespaceObject.store).get('core/edit-post', 'openPanels');
-  return !!openPanels?.includes(panelName);
+  external_wp_deprecated_default()(`select( 'core/edit-post' ).isEditorPanelOpened`, {
+    since: '6.5',
+    alternative: `select( 'core/editor' ).isEditorPanelOpened`
+  });
+  return select(external_wp_editor_namespaceObject.store).isEditorPanelOpened(panelName);
 });
 
 /**
@@ -3567,13 +3522,13 @@ const getActiveMetaBoxLocations = rememo(state => {
  *
  * @return {boolean} Whether the meta box location is active and visible.
  */
-function isMetaBoxLocationVisible(state, location) {
+const isMetaBoxLocationVisible = (0,external_wp_data_namespaceObject.createRegistrySelector)(select => (state, location) => {
   return isMetaBoxLocationActive(state, location) && getMetaBoxesPerLocation(state, location)?.some(({
     id
   }) => {
-    return isEditorPanelEnabled(state, `meta-box-${id}`);
+    return select(external_wp_editor_namespaceObject.store).isEditorPanelEnabled(state, `meta-box-${id}`);
   });
-}
+});
 
 /**
  * Returns true if there is an active meta box in the given location, or false
@@ -3655,27 +3610,36 @@ const __experimentalGetPreviewDeviceType = (0,external_wp_data_namespaceObject.c
 /**
  * Returns true if the inserter is opened.
  *
+ * @deprecated
+ *
  * @param {Object} state Global application state.
  *
  * @return {boolean} Whether the inserter is opened.
  */
-function isInserterOpened(state) {
-  return !!state.blockInserterPanel;
-}
+const isInserterOpened = (0,external_wp_data_namespaceObject.createRegistrySelector)(select => () => {
+  external_wp_deprecated_default()(`select( 'core/edit-post' ).isInserterOpened`, {
+    since: '6.5',
+    alternative: `select( 'core/editor' ).isInserterOpened`
+  });
+  return select(external_wp_editor_namespaceObject.store).isInserterOpened();
+});
 
 /**
  * Get the insertion point for the inserter.
+ *
+ * @deprecated
  *
  * @param {Object} state Global application state.
  *
  * @return {Object} The root client ID, index to insert at and starting filter value.
  */
-function __experimentalGetInsertionPoint(state) {
-  if (typeof state.blockInserterPanel === 'boolean') {
-    return EMPTY_INSERTION_POINT;
-  }
-  return state.blockInserterPanel;
-}
+const __experimentalGetInsertionPoint = (0,external_wp_data_namespaceObject.createRegistrySelector)(select => () => {
+  external_wp_deprecated_default()(`select( 'core/edit-post' ).__experimentalGetInsertionPoint`, {
+    since: '6.5',
+    version: '6.7'
+  });
+  return unlock(select(external_wp_editor_namespaceObject.store)).getInsertionPoint();
+});
 
 /**
  * Returns true if the list view is opened.
@@ -3684,9 +3648,13 @@ function __experimentalGetInsertionPoint(state) {
  *
  * @return {boolean} Whether the list view is opened.
  */
-function isListViewOpened(state) {
-  return state.listViewPanel;
-}
+const isListViewOpened = (0,external_wp_data_namespaceObject.createRegistrySelector)(select => () => {
+  external_wp_deprecated_default()(`select( 'core/edit-post' ).isListViewOpened`, {
+    since: '6.5',
+    alternative: `select( 'core/editor' ).isListViewOpened`
+  });
+  return select(external_wp_editor_namespaceObject.store).isListViewOpened();
+});
 
 /**
  * Returns true if the template editing mode is enabled.
@@ -3840,18 +3808,6 @@ function TextEditor() {
   }), (0,external_React_namespaceObject.createElement)(external_wp_editor_namespaceObject.PostTextEditor, null)));
 }
 
-;// CONCATENATED MODULE: external ["wp","privateApis"]
-var external_wp_privateApis_namespaceObject = window["wp"]["privateApis"];
-;// CONCATENATED MODULE: ./packages/edit-post/build-module/lock-unlock.js
-/**
- * WordPress dependencies
- */
-
-const {
-  lock,
-  unlock
-} = (0,external_wp_privateApis_namespaceObject.__dangerousOptInToUnstableAPIsOnlyForCoreModules)('I know using unstable features means my theme or plugin will inevitably break in the next version of WordPress.', '@wordpress/edit-post');
-
 ;// CONCATENATED MODULE: ./packages/edit-post/build-module/components/visual-editor/index.js
 
 /**
@@ -3952,8 +3908,7 @@ function VisualEditor({
 function KeyboardShortcuts() {
   const {
     getEditorMode,
-    isEditorSidebarOpened,
-    isListViewOpened
+    isEditorSidebarOpened
   } = (0,external_wp_data_namespaceObject.useSelect)(store_store);
   const isModeToggleDisabled = (0,external_wp_data_namespaceObject.useSelect)(select => {
     const {
@@ -3967,7 +3922,6 @@ function KeyboardShortcuts() {
     openGeneralSidebar,
     closeGeneralSidebar,
     toggleFeature,
-    setIsListViewOpened,
     toggleDistractionFree
   } = (0,external_wp_data_namespaceObject.useDispatch)(store_store);
   const {
@@ -4030,15 +3984,6 @@ function KeyboardShortcuts() {
       keyCombination: {
         modifier: 'secondary',
         character: 'f'
-      }
-    });
-    registerShortcut({
-      name: 'core/edit-post/toggle-list-view',
-      category: 'global',
-      description: (0,external_wp_i18n_namespaceObject.__)('Open the block list view.'),
-      keyCombination: {
-        modifier: 'access',
-        character: 'o'
       }
     });
     registerShortcut({
@@ -4131,14 +4076,6 @@ function KeyboardShortcuts() {
       openGeneralSidebar(sidebarToOpen);
     }
   });
-
-  // Only opens the list view. Other functionality for this shortcut happens in the rendered sidebar.
-  (0,external_wp_keyboardShortcuts_namespaceObject.useShortcut)('core/edit-post/toggle-list-view', event => {
-    if (!isListViewOpened()) {
-      event.preventDefault();
-      setIsListViewOpened(true);
-    }
-  });
   (0,external_wp_keyboardShortcuts_namespaceObject.useShortcut)('core/edit-post/transform-heading-to-paragraph', event => handleTextLevelShortcut(event, 0));
   [1, 2, 3, 4, 5, 6].forEach(level => {
     //the loop is based off on a constant therefore
@@ -4211,17 +4148,13 @@ function EnableCustomFieldsOption({
 
 
 
-/**
- * Internal dependencies
- */
-
 /* harmony default export */ var enable_panel = ((0,external_wp_compose_namespaceObject.compose)((0,external_wp_data_namespaceObject.withSelect)((select, {
   panelName
 }) => {
   const {
     isEditorPanelEnabled,
     isEditorPanelRemoved
-  } = select(store_store);
+  } = select(external_wp_editor_namespaceObject.store);
   return {
     isRemoved: isEditorPanelRemoved(panelName),
     isChecked: isEditorPanelEnabled(panelName)
@@ -4231,7 +4164,7 @@ function EnableCustomFieldsOption({
 }) => !isRemoved), (0,external_wp_data_namespaceObject.withDispatch)((dispatch, {
   panelName
 }) => ({
-  onChange: () => dispatch(store_store).toggleEditorPanelEnabled(panelName)
+  onChange: () => dispatch(external_wp_editor_namespaceObject.store).toggleEditorPanelEnabled(panelName)
 })))(preferences_modal_base_option));
 
 ;// CONCATENATED MODULE: ./packages/edit-post/build-module/components/preferences-modal/options/enable-plugin-document-setting-panel.js
@@ -4662,10 +4595,12 @@ function EditPostPreferencesModal() {
     return [modalActive, !isDistractionFreeEnabled && isLargeViewport && isRichEditingEnabled && mode === 'visual', isDistractionFreeEnabled];
   }, [isLargeViewport]);
   const {
-    closeGeneralSidebar,
+    closeGeneralSidebar
+  } = (0,external_wp_data_namespaceObject.useDispatch)(store_store);
+  const {
     setIsListViewOpened,
     setIsInserterOpened
-  } = (0,external_wp_data_namespaceObject.useDispatch)(store_store);
+  } = (0,external_wp_data_namespaceObject.useDispatch)(external_wp_editor_namespaceObject.store);
   const {
     set: setPreference
   } = (0,external_wp_data_namespaceObject.useDispatch)(external_wp_preferences_namespaceObject.store);
@@ -4696,6 +4631,10 @@ function EditPostPreferencesModal() {
       featureName: "showBlockBreadcrumbs",
       help: (0,external_wp_i18n_namespaceObject.__)('Display the block hierarchy trail at the bottom of the editor.'),
       label: (0,external_wp_i18n_namespaceObject.__)('Show block breadcrumbs')
+    }), (0,external_React_namespaceObject.createElement)(enable_feature, {
+      featureName: "allowRightClickOverrides",
+      help: (0,external_wp_i18n_namespaceObject.__)('Allows contextual list view menus via right-click, overriding browser defaults.'),
+      label: (0,external_wp_i18n_namespaceObject.__)('Allow right-click contextual menus')
     })), (0,external_React_namespaceObject.createElement)(preferences_modal_section, {
       title: (0,external_wp_i18n_namespaceObject.__)('Document settings'),
       description: (0,external_wp_i18n_namespaceObject.__)('Select what settings are shown in the document panel.')
@@ -5106,27 +5045,27 @@ const plus = (0,external_React_namespaceObject.createElement)(external_wp_primit
 
 
 const {
-  useShouldContextualToolbarShow
+  useCanBlockToolbarBeFocused
 } = unlock(external_wp_blockEditor_namespaceObject.privateApis);
 const preventDefault = event => {
   event.preventDefault();
 };
 function HeaderToolbar({
-  hasFixedToolbar,
-  setListViewToggleElement
+  hasFixedToolbar
 }) {
   const inserterButton = (0,external_wp_element_namespaceObject.useRef)();
   const {
     setIsInserterOpened,
     setIsListViewOpened
-  } = (0,external_wp_data_namespaceObject.useDispatch)(store_store);
+  } = (0,external_wp_data_namespaceObject.useDispatch)(external_wp_editor_namespaceObject.store);
   const {
     isInserterEnabled,
     isInserterOpened,
     isTextModeEnabled,
     showIconLabels,
     isListViewOpen,
-    listViewShortcut
+    listViewShortcut,
+    listViewToggleRef
   } = (0,external_wp_data_namespaceObject.useSelect)(select => {
     const {
       hasInserterItems,
@@ -5134,12 +5073,13 @@ function HeaderToolbar({
       getBlockSelectionEnd
     } = select(external_wp_blockEditor_namespaceObject.store);
     const {
-      getEditorSettings
-    } = select(external_wp_editor_namespaceObject.store);
+      getEditorSettings,
+      isListViewOpened,
+      getListViewToggleRef
+    } = unlock(select(external_wp_editor_namespaceObject.store));
     const {
       getEditorMode,
-      isFeatureActive,
-      isListViewOpened
+      isFeatureActive
     } = select(store_store);
     const {
       getShortcutRepresentation
@@ -5147,23 +5087,18 @@ function HeaderToolbar({
     return {
       // This setting (richEditingEnabled) should not live in the block editor's setting.
       isInserterEnabled: getEditorMode() === 'visual' && getEditorSettings().richEditingEnabled && hasInserterItems(getBlockRootClientId(getBlockSelectionEnd())),
-      isInserterOpened: select(store_store).isInserterOpened(),
+      isInserterOpened: select(external_wp_editor_namespaceObject.store).isInserterOpened(),
       isTextModeEnabled: getEditorMode() === 'text',
       showIconLabels: isFeatureActive('showIconLabels'),
       isListViewOpen: isListViewOpened(),
-      listViewShortcut: getShortcutRepresentation('core/edit-post/toggle-list-view')
+      listViewShortcut: getShortcutRepresentation('core/editor/toggle-list-view'),
+      listViewToggleRef: getListViewToggleRef()
     };
   }, []);
   const isLargeViewport = (0,external_wp_compose_namespaceObject.useViewportMatch)('medium');
   const isWideViewport = (0,external_wp_compose_namespaceObject.useViewportMatch)('wide');
-  const {
-    shouldShowContextualToolbar,
-    canFocusHiddenToolbar,
-    fixedToolbarCanBeFocused
-  } = useShouldContextualToolbarShow();
-  // If there's a block toolbar to be focused, disable the focus shortcut for the document toolbar.
-  // There's a fixed block toolbar when the fixed toolbar option is enabled or when the browser width is less than the large viewport.
-  const blockToolbarCanBeFocused = shouldShowContextualToolbar || canFocusHiddenToolbar || fixedToolbarCanBeFocused;
+  const blockToolbarCanBeFocused = useCanBlockToolbarBeFocused();
+
   /* translators: accessibility text for the editor toolbar */
   const toolbarAriaLabel = (0,external_wp_i18n_namespaceObject.__)('Document tools');
   const toggleListView = (0,external_wp_element_namespaceObject.useCallback)(() => setIsListViewOpened(!isListViewOpen), [setIsListViewOpened, isListViewOpen]);
@@ -5180,7 +5115,7 @@ function HeaderToolbar({
     showTooltip: !showIconLabels,
     variant: showIconLabels ? 'tertiary' : undefined,
     "aria-expanded": isListViewOpen,
-    ref: setListViewToggleElement,
+    ref: listViewToggleRef,
     size: "compact"
   }));
   const toggleInserter = (0,external_wp_element_namespaceObject.useCallback)(() => {
@@ -5362,6 +5297,7 @@ function PreferencesMenuItem() {
 
 
 
+
 /**
  * Internal dependencies
  */
@@ -5369,13 +5305,15 @@ function PreferencesMenuItem() {
 function WritingMenu() {
   const registry = (0,external_wp_data_namespaceObject.useRegistry)();
   const {
-    setIsInserterOpened,
-    setIsListViewOpened,
     closeGeneralSidebar
   } = (0,external_wp_data_namespaceObject.useDispatch)(store_store);
   const {
     set: setPreference
   } = (0,external_wp_data_namespaceObject.useDispatch)(external_wp_preferences_namespaceObject.store);
+  const {
+    setIsInserterOpened,
+    setIsListViewOpened
+  } = (0,external_wp_data_namespaceObject.useDispatch)(external_wp_editor_namespaceObject.store);
   const toggleDistractionFree = () => {
     registry.batch(() => {
       setPreference('core/edit-post', 'fixedToolbar', true);
@@ -5567,53 +5505,6 @@ function PostPublishButtonOrToggle({
   };
 }))(PostPublishButtonOrToggle));
 
-;// CONCATENATED MODULE: ./packages/edit-post/build-module/components/view-link/index.js
-
-/**
- * WordPress dependencies
- */
-
-
-
-
-
-
-
-/**
- * Internal dependencies
- */
-
-function ViewLink() {
-  const {
-    permalink,
-    isPublished,
-    label,
-    showIconLabels
-  } = (0,external_wp_data_namespaceObject.useSelect)(select => {
-    // Grab post type to retrieve the view_item label.
-    const postTypeSlug = select(external_wp_editor_namespaceObject.store).getCurrentPostType();
-    const postType = select(external_wp_coreData_namespaceObject.store).getPostType(postTypeSlug);
-    return {
-      permalink: select(external_wp_editor_namespaceObject.store).getPermalink(),
-      isPublished: select(external_wp_editor_namespaceObject.store).isCurrentPostPublished(),
-      label: postType?.labels.view_item,
-      showIconLabels: select(store_store).isFeatureActive('showIconLabels')
-    };
-  }, []);
-
-  // Only render the view button if the post is published and has a permalink.
-  if (!isPublished || !permalink) {
-    return null;
-  }
-  return (0,external_React_namespaceObject.createElement)(external_wp_components_namespaceObject.Button, {
-    icon: library_external,
-    label: label || (0,external_wp_i18n_namespaceObject.__)('View post'),
-    href: permalink,
-    target: "_blank",
-    showTooltip: !showIconLabels
-  });
-}
-
 ;// CONCATENATED MODULE: ./packages/edit-post/build-module/components/header/main-dashboard-button/index.js
 
 /**
@@ -5672,8 +5563,8 @@ MainDashboardButton.Slot = main_dashboard_button_Slot;
 
 
 
-
 const {
+  PostViewLink,
   PreviewDropdown
 } = unlock(external_wp_editor_namespaceObject.privateApis);
 const slideY = {
@@ -5707,14 +5598,13 @@ const slideX = {
   }
 };
 function Header({
-  setEntitiesSavedStatesCallback,
-  setListViewToggleElement
+  setEntitiesSavedStatesCallback
 }) {
   const isWideViewport = (0,external_wp_compose_namespaceObject.useViewportMatch)('large');
   const isLargeViewport = (0,external_wp_compose_namespaceObject.useViewportMatch)('medium');
   const blockToolbarRef = (0,external_wp_element_namespaceObject.useRef)();
   const {
-    blockSelectionStart,
+    hasBlockSelection,
     hasActiveMetaboxes,
     hasFixedToolbar,
     isEditingTemplate,
@@ -5725,7 +5615,7 @@ function Header({
       get: getPreference
     } = select(external_wp_preferences_namespaceObject.store);
     return {
-      blockSelectionStart: select(external_wp_blockEditor_namespaceObject.store).getBlockSelectionStart(),
+      hasBlockSelection: !!select(external_wp_blockEditor_namespaceObject.store).getBlockSelectionStart(),
       hasActiveMetaboxes: select(store_store).hasMetaBoxes(),
       isEditingTemplate: select(external_wp_editor_namespaceObject.store).getRenderingMode() === 'template-only',
       isPublishSidebarOpened: select(store_store).isPublishSidebarOpened(),
@@ -5734,13 +5624,12 @@ function Header({
     };
   }, []);
   const [isBlockToolsCollapsed, setIsBlockToolsCollapsed] = (0,external_wp_element_namespaceObject.useState)(true);
-  const hasBlockSelected = !!blockSelectionStart;
   (0,external_wp_element_namespaceObject.useEffect)(() => {
     // If we have a new block selection, show the block tools
-    if (blockSelectionStart) {
+    if (hasBlockSelection) {
       setIsBlockToolsCollapsed(false);
     }
-  }, [blockSelectionStart]);
+  }, [hasBlockSelection]);
   return (0,external_React_namespaceObject.createElement)("div", {
     className: "edit-post-header"
   }, (0,external_React_namespaceObject.createElement)(main_dashboard_button.Slot, null, (0,external_React_namespaceObject.createElement)(external_wp_components_namespaceObject.__unstableMotion.div, {
@@ -5759,8 +5648,7 @@ function Header({
     },
     className: "edit-post-header__toolbar"
   }, (0,external_React_namespaceObject.createElement)(header_toolbar, {
-    hasFixedToolbar: hasFixedToolbar,
-    setListViewToggleElement: setListViewToggleElement
+    hasFixedToolbar: hasFixedToolbar
   }), hasFixedToolbar && isLargeViewport && (0,external_React_namespaceObject.createElement)(external_React_namespaceObject.Fragment, null, (0,external_React_namespaceObject.createElement)("div", {
     className: classnames_default()('selected-block-tools-wrapper', {
       'is-collapsed': isEditingTemplate && isBlockToolsCollapsed
@@ -5770,7 +5658,7 @@ function Header({
   })), (0,external_React_namespaceObject.createElement)(external_wp_components_namespaceObject.Popover.Slot, {
     ref: blockToolbarRef,
     name: "block-toolbar"
-  }), isEditingTemplate && hasBlockSelected && (0,external_React_namespaceObject.createElement)(external_wp_components_namespaceObject.Button, {
+  }), isEditingTemplate && hasBlockSelection && (0,external_React_namespaceObject.createElement)(external_wp_components_namespaceObject.Button, {
     className: "edit-post-header__block-tools-toggle",
     icon: isBlockToolsCollapsed ? library_next : library_previous,
     onClick: () => {
@@ -5779,7 +5667,7 @@ function Header({
     label: isBlockToolsCollapsed ? (0,external_wp_i18n_namespaceObject.__)('Show block tools') : (0,external_wp_i18n_namespaceObject.__)('Hide block tools')
   })), (0,external_React_namespaceObject.createElement)("div", {
     className: classnames_default()('edit-post-header__center', {
-      'is-collapsed': isEditingTemplate && hasBlockSelected && !isBlockToolsCollapsed && hasFixedToolbar && isLargeViewport
+      'is-collapsed': isEditingTemplate && hasBlockSelection && !isBlockToolsCollapsed && hasFixedToolbar && isLargeViewport
     })
   }, isEditingTemplate && (0,external_React_namespaceObject.createElement)(external_wp_editor_namespaceObject.DocumentBar, null))), (0,external_React_namespaceObject.createElement)(external_wp_components_namespaceObject.__unstableMotion.div, {
     variants: slideY,
@@ -5803,7 +5691,9 @@ function Header({
   }), (0,external_React_namespaceObject.createElement)(external_wp_editor_namespaceObject.PostPreviewButton, {
     className: "edit-post-header__post-preview-button",
     forceIsAutosaveable: hasActiveMetaboxes
-  }), (0,external_React_namespaceObject.createElement)(ViewLink, null), (0,external_React_namespaceObject.createElement)(post_publish_button_or_toggle, {
+  }), (0,external_React_namespaceObject.createElement)(PostViewLink, {
+    showIconLabels: showIconLabels
+  }), (0,external_React_namespaceObject.createElement)(post_publish_button_or_toggle, {
     forceIsDirty: hasActiveMetaboxes,
     setEntitiesSavedStatesCallback: setEntitiesSavedStatesCallback
   }), (isWideViewport || !showIconLabels) && (0,external_React_namespaceObject.createElement)(external_React_namespaceObject.Fragment, null, (0,external_React_namespaceObject.createElement)(pinned_items.Slot, {
@@ -5843,9 +5733,11 @@ const close_close = (0,external_React_namespaceObject.createElement)(external_wp
 
 
 
+
 /**
  * Internal dependencies
  */
+
 
 function InserterSidebar() {
   const {
@@ -5853,17 +5745,19 @@ function InserterSidebar() {
     showMostUsedBlocks
   } = (0,external_wp_data_namespaceObject.useSelect)(select => {
     const {
-      isFeatureActive,
-      __experimentalGetInsertionPoint
+      isFeatureActive
     } = select(store_store);
+    const {
+      getInsertionPoint
+    } = unlock(select(external_wp_editor_namespaceObject.store));
     return {
-      insertionPoint: __experimentalGetInsertionPoint(),
+      insertionPoint: getInsertionPoint(),
       showMostUsedBlocks: isFeatureActive('mostUsedBlocks')
     };
   }, []);
   const {
     setIsInserterOpened
-  } = (0,external_wp_data_namespaceObject.useDispatch)(store_store);
+  } = (0,external_wp_data_namespaceObject.useDispatch)(external_wp_editor_namespaceObject.store);
   const isMobileViewport = (0,external_wp_compose_namespaceObject.useViewportMatch)('medium', '<');
   const TagName = !isMobileViewport ? external_wp_components_namespaceObject.VisuallyHidden : 'div';
   const [inserterDialogRef, inserterDialogProps] = (0,external_wp_compose_namespaceObject.__experimentalUseDialog)({
@@ -6021,17 +5915,19 @@ function ListViewOutline() {
 
 
 
+
 /**
  * Internal dependencies
  */
 
 
-function ListViewSidebar({
-  listViewToggleElement
-}) {
+function ListViewSidebar() {
   const {
     setIsListViewOpened
-  } = (0,external_wp_data_namespaceObject.useDispatch)(store_store);
+  } = (0,external_wp_data_namespaceObject.useDispatch)(external_wp_editor_namespaceObject.store);
+  const {
+    getListViewToggleRef
+  } = unlock((0,external_wp_data_namespaceObject.useSelect)(external_wp_editor_namespaceObject.store));
 
   // This hook handles focus when the sidebar first renders.
   const focusOnMountRef = (0,external_wp_compose_namespaceObject.useFocusOnMount)('firstElement');
@@ -6039,8 +5935,8 @@ function ListViewSidebar({
   // When closing the list view, focus should return to the toggle button.
   const closeListView = (0,external_wp_element_namespaceObject.useCallback)(() => {
     setIsListViewOpened(false);
-    listViewToggleElement?.focus();
-  }, [listViewToggleElement, setIsListViewOpened]);
+    getListViewToggleRef().current?.focus();
+  }, [getListViewToggleRef, setIsListViewOpened]);
   const closeOnEscape = (0,external_wp_element_namespaceObject.useCallback)(event => {
     if (event.keyCode === external_wp_keycodes_namespaceObject.ESCAPE && !event.defaultPrevented) {
       event.preventDefault();
@@ -6097,7 +5993,7 @@ function ListViewSidebar({
 
   // This only fires when the sidebar is open because of the conditional rendering.
   // It is the same shortcut to open but that is defined as a global shortcut and only fires when the sidebar is closed.
-  (0,external_wp_keyboardShortcuts_namespaceObject.useShortcut)('core/edit-post/toggle-list-view', handleToggleListViewShortcut);
+  (0,external_wp_keyboardShortcuts_namespaceObject.useShortcut)('core/editor/toggle-list-view', handleToggleListViewShortcut);
 
   /**
    * Render tab content for a given tab name.
@@ -6457,7 +6353,6 @@ PluginPostStatusInfo.Slot = plugin_post_status_info_Slot;
 
 
 
-
 /**
  * Module Constants
  */
@@ -6472,7 +6367,7 @@ function PostStatus() {
     const {
       isEditorPanelRemoved,
       isEditorPanelOpened
-    } = select(store_store);
+    } = select(external_wp_editor_namespaceObject.store);
     return {
       isRemoved: isEditorPanelRemoved(PANEL_NAME),
       isOpened: isEditorPanelOpened(PANEL_NAME)
@@ -6480,7 +6375,7 @@ function PostStatus() {
   }, []);
   const {
     toggleEditorPanelOpened
-  } = (0,external_wp_data_namespaceObject.useDispatch)(store_store);
+  } = (0,external_wp_data_namespaceObject.useDispatch)(external_wp_editor_namespaceObject.store);
   if (isRemoved) {
     return null;
   }
@@ -6497,379 +6392,6 @@ function PostStatus() {
     wrap: true
   }, (0,external_React_namespaceObject.createElement)(external_wp_editor_namespaceObject.PostSwitchToDraftButton, null), (0,external_React_namespaceObject.createElement)(PostTrash, null)))));
 }
-
-;// CONCATENATED MODULE: ./packages/edit-post/build-module/components/sidebar/last-revision/index.js
-
-/**
- * WordPress dependencies
- */
-
-
-function LastRevision() {
-  return (0,external_React_namespaceObject.createElement)(external_wp_editor_namespaceObject.PostLastRevisionCheck, null, (0,external_React_namespaceObject.createElement)(external_wp_components_namespaceObject.PanelBody, {
-    className: "edit-post-last-revision__panel"
-  }, (0,external_React_namespaceObject.createElement)(external_wp_editor_namespaceObject.PostLastRevision, null)));
-}
-/* harmony default export */ var last_revision = (LastRevision);
-
-;// CONCATENATED MODULE: ./packages/edit-post/build-module/components/sidebar/post-taxonomies/taxonomy-panel.js
-
-/**
- * WordPress dependencies
- */
-
-
-
-/**
- * Internal dependencies
- */
-
-function TaxonomyPanel({
-  taxonomy,
-  children
-}) {
-  const slug = taxonomy?.slug;
-  const panelName = slug ? `taxonomy-panel-${slug}` : '';
-  const {
-    isEnabled,
-    isOpened
-  } = (0,external_wp_data_namespaceObject.useSelect)(select => {
-    const {
-      isEditorPanelEnabled,
-      isEditorPanelOpened
-    } = select(store_store);
-    return {
-      isEnabled: slug ? isEditorPanelEnabled(panelName) : false,
-      isOpened: slug ? isEditorPanelOpened(panelName) : false
-    };
-  }, [panelName, slug]);
-  const {
-    toggleEditorPanelOpened
-  } = (0,external_wp_data_namespaceObject.useDispatch)(store_store);
-  if (!isEnabled) {
-    return null;
-  }
-  const taxonomyMenuName = taxonomy?.labels?.menu_name;
-  if (!taxonomyMenuName) {
-    return null;
-  }
-  return (0,external_React_namespaceObject.createElement)(external_wp_components_namespaceObject.PanelBody, {
-    title: taxonomyMenuName,
-    opened: isOpened,
-    onToggle: () => toggleEditorPanelOpened(panelName)
-  }, children);
-}
-/* harmony default export */ var taxonomy_panel = (TaxonomyPanel);
-
-;// CONCATENATED MODULE: ./packages/edit-post/build-module/components/sidebar/post-taxonomies/index.js
-
-/**
- * WordPress dependencies
- */
-
-
-/**
- * Internal dependencies
- */
-
-function PostTaxonomies() {
-  return (0,external_React_namespaceObject.createElement)(external_wp_editor_namespaceObject.PostTaxonomiesCheck, null, (0,external_React_namespaceObject.createElement)(external_wp_editor_namespaceObject.PostTaxonomies, {
-    taxonomyWrapper: (content, taxonomy) => {
-      return (0,external_React_namespaceObject.createElement)(taxonomy_panel, {
-        taxonomy: taxonomy
-      }, content);
-    }
-  }));
-}
-/* harmony default export */ var post_taxonomies = (PostTaxonomies);
-
-;// CONCATENATED MODULE: ./packages/edit-post/build-module/components/sidebar/featured-image/index.js
-
-/**
- * WordPress dependencies
- */
-
-
-
-
-
-
-
-/**
- * Internal dependencies
- */
-
-
-/**
- * Module Constants
- */
-const featured_image_PANEL_NAME = 'featured-image';
-function FeaturedImage({
-  isEnabled,
-  isOpened,
-  postType,
-  onTogglePanel
-}) {
-  var _postType$labels$feat;
-  if (!isEnabled) {
-    return null;
-  }
-  return (0,external_React_namespaceObject.createElement)(external_wp_editor_namespaceObject.PostFeaturedImageCheck, null, (0,external_React_namespaceObject.createElement)(external_wp_components_namespaceObject.PanelBody, {
-    title: (_postType$labels$feat = postType?.labels?.featured_image) !== null && _postType$labels$feat !== void 0 ? _postType$labels$feat : (0,external_wp_i18n_namespaceObject.__)('Featured image'),
-    opened: isOpened,
-    onToggle: onTogglePanel
-  }, (0,external_React_namespaceObject.createElement)(external_wp_editor_namespaceObject.PostFeaturedImage, null)));
-}
-const applyWithSelect = (0,external_wp_data_namespaceObject.withSelect)(select => {
-  const {
-    getEditedPostAttribute
-  } = select(external_wp_editor_namespaceObject.store);
-  const {
-    getPostType
-  } = select(external_wp_coreData_namespaceObject.store);
-  const {
-    isEditorPanelEnabled,
-    isEditorPanelOpened
-  } = select(store_store);
-  return {
-    postType: getPostType(getEditedPostAttribute('type')),
-    isEnabled: isEditorPanelEnabled(featured_image_PANEL_NAME),
-    isOpened: isEditorPanelOpened(featured_image_PANEL_NAME)
-  };
-});
-const applyWithDispatch = (0,external_wp_data_namespaceObject.withDispatch)(dispatch => {
-  const {
-    toggleEditorPanelOpened
-  } = dispatch(store_store);
-  return {
-    onTogglePanel: (...args) => toggleEditorPanelOpened(featured_image_PANEL_NAME, ...args)
-  };
-});
-/* harmony default export */ var featured_image = ((0,external_wp_compose_namespaceObject.compose)(applyWithSelect, applyWithDispatch)(FeaturedImage));
-
-;// CONCATENATED MODULE: ./packages/edit-post/build-module/components/sidebar/plugin-post-excerpt/index.js
-
-/**
- * Defines as extensibility slot for the Excerpt panel.
- */
-
-/**
- * WordPress dependencies
- */
-
-const {
-  Fill: plugin_post_excerpt_Fill,
-  Slot: plugin_post_excerpt_Slot
-} = (0,external_wp_components_namespaceObject.createSlotFill)('PluginPostExcerpt');
-
-/**
- * Renders a post excerpt panel in the post sidebar.
- *
- * @param {Object}  props             Component properties.
- * @param {string}  [props.className] An optional class name added to the row.
- * @param {Element} props.children    Children to be rendered.
- *
- * @example
- * ```js
- * // Using ES5 syntax
- * var __ = wp.i18n.__;
- * var PluginPostExcerpt = wp.editPost.PluginPostExcerpt;
- *
- * function MyPluginPostExcerpt() {
- * 	return React.createElement(
- * 		PluginPostExcerpt,
- * 		{
- * 			className: 'my-plugin-post-excerpt',
- * 		},
- * 		__( 'Post excerpt custom content' )
- * 	)
- * }
- * ```
- *
- * @example
- * ```jsx
- * // Using ESNext syntax
- * import { __ } from '@wordpress/i18n';
- * import { PluginPostExcerpt } from '@wordpress/edit-post';
- *
- * const MyPluginPostExcerpt = () => (
- * 	<PluginPostExcerpt className="my-plugin-post-excerpt">
- * 		{ __( 'Post excerpt custom content' ) }
- * 	</PluginPostExcerpt>
- * );
- * ```
- *
- * @return {Component} The component to be rendered.
- */
-const PluginPostExcerpt = ({
-  children,
-  className
-}) => {
-  return (0,external_React_namespaceObject.createElement)(plugin_post_excerpt_Fill, null, (0,external_React_namespaceObject.createElement)(external_wp_components_namespaceObject.PanelRow, {
-    className: className
-  }, children));
-};
-PluginPostExcerpt.Slot = plugin_post_excerpt_Slot;
-/* harmony default export */ var plugin_post_excerpt = (PluginPostExcerpt);
-
-;// CONCATENATED MODULE: ./packages/edit-post/build-module/components/sidebar/post-excerpt/index.js
-
-/**
- * WordPress dependencies
- */
-
-
-
-
-
-/**
- * Internal dependencies
- */
-
-
-
-/**
- * Module Constants
- */
-const post_excerpt_PANEL_NAME = 'post-excerpt';
-function PostExcerpt() {
-  const {
-    isOpened,
-    isEnabled
-  } = (0,external_wp_data_namespaceObject.useSelect)(select => {
-    const {
-      isEditorPanelOpened,
-      isEditorPanelEnabled
-    } = select(store_store);
-    return {
-      isOpened: isEditorPanelOpened(post_excerpt_PANEL_NAME),
-      isEnabled: isEditorPanelEnabled(post_excerpt_PANEL_NAME)
-    };
-  }, []);
-  const {
-    toggleEditorPanelOpened
-  } = (0,external_wp_data_namespaceObject.useDispatch)(store_store);
-  const toggleExcerptPanel = () => toggleEditorPanelOpened(post_excerpt_PANEL_NAME);
-  if (!isEnabled) {
-    return null;
-  }
-  return (0,external_React_namespaceObject.createElement)(external_wp_editor_namespaceObject.PostExcerptCheck, null, (0,external_React_namespaceObject.createElement)(external_wp_components_namespaceObject.PanelBody, {
-    title: (0,external_wp_i18n_namespaceObject.__)('Excerpt'),
-    opened: isOpened,
-    onToggle: toggleExcerptPanel
-  }, (0,external_React_namespaceObject.createElement)(plugin_post_excerpt.Slot, null, fills => (0,external_React_namespaceObject.createElement)(external_React_namespaceObject.Fragment, null, (0,external_React_namespaceObject.createElement)(external_wp_editor_namespaceObject.PostExcerpt, null), fills))));
-}
-
-;// CONCATENATED MODULE: ./packages/edit-post/build-module/components/sidebar/discussion-panel/index.js
-
-/**
- * WordPress dependencies
- */
-
-
-
-
-
-/**
- * Internal dependencies
- */
-
-
-/**
- * Module Constants
- */
-const discussion_panel_PANEL_NAME = 'discussion-panel';
-function DiscussionPanel() {
-  const {
-    isEnabled,
-    isOpened
-  } = (0,external_wp_data_namespaceObject.useSelect)(select => {
-    const {
-      isEditorPanelEnabled,
-      isEditorPanelOpened
-    } = select(store_store);
-    return {
-      isEnabled: isEditorPanelEnabled(discussion_panel_PANEL_NAME),
-      isOpened: isEditorPanelOpened(discussion_panel_PANEL_NAME)
-    };
-  }, []);
-  const {
-    toggleEditorPanelOpened
-  } = (0,external_wp_data_namespaceObject.useDispatch)(store_store);
-  if (!isEnabled) {
-    return null;
-  }
-  return (0,external_React_namespaceObject.createElement)(external_wp_editor_namespaceObject.PostTypeSupportCheck, {
-    supportKeys: ['comments', 'trackbacks']
-  }, (0,external_React_namespaceObject.createElement)(external_wp_components_namespaceObject.PanelBody, {
-    title: (0,external_wp_i18n_namespaceObject.__)('Discussion'),
-    opened: isOpened,
-    onToggle: () => toggleEditorPanelOpened(discussion_panel_PANEL_NAME)
-  }, (0,external_React_namespaceObject.createElement)(external_wp_editor_namespaceObject.PostTypeSupportCheck, {
-    supportKeys: "comments"
-  }, (0,external_React_namespaceObject.createElement)(external_wp_components_namespaceObject.PanelRow, null, (0,external_React_namespaceObject.createElement)(external_wp_editor_namespaceObject.PostComments, null))), (0,external_React_namespaceObject.createElement)(external_wp_editor_namespaceObject.PostTypeSupportCheck, {
-    supportKeys: "trackbacks"
-  }, (0,external_React_namespaceObject.createElement)(external_wp_components_namespaceObject.PanelRow, null, (0,external_React_namespaceObject.createElement)(external_wp_editor_namespaceObject.PostPingbacks, null)))));
-}
-/* harmony default export */ var discussion_panel = (DiscussionPanel);
-
-;// CONCATENATED MODULE: ./packages/edit-post/build-module/components/sidebar/page-attributes/index.js
-
-/**
- * WordPress dependencies
- */
-
-
-
-
-
-
-/**
- * Internal dependencies
- */
-
-
-/**
- * Module Constants
- */
-const page_attributes_PANEL_NAME = 'page-attributes';
-function PageAttributes() {
-  var _postType$labels$attr;
-  const {
-    isEnabled,
-    isOpened,
-    postType
-  } = (0,external_wp_data_namespaceObject.useSelect)(select => {
-    const {
-      getEditedPostAttribute
-    } = select(external_wp_editor_namespaceObject.store);
-    const {
-      isEditorPanelEnabled,
-      isEditorPanelOpened
-    } = select(store_store);
-    const {
-      getPostType
-    } = select(external_wp_coreData_namespaceObject.store);
-    return {
-      isEnabled: isEditorPanelEnabled(page_attributes_PANEL_NAME),
-      isOpened: isEditorPanelOpened(page_attributes_PANEL_NAME),
-      postType: getPostType(getEditedPostAttribute('type'))
-    };
-  }, []);
-  const {
-    toggleEditorPanelOpened
-  } = (0,external_wp_data_namespaceObject.useDispatch)(store_store);
-  if (!isEnabled || !postType) {
-    return null;
-  }
-  const onTogglePanel = (...args) => toggleEditorPanelOpened(page_attributes_PANEL_NAME, ...args);
-  return (0,external_React_namespaceObject.createElement)(external_wp_editor_namespaceObject.PageAttributesCheck, null, (0,external_React_namespaceObject.createElement)(external_wp_components_namespaceObject.PanelBody, {
-    title: (_postType$labels$attr = postType?.labels?.attributes) !== null && _postType$labels$attr !== void 0 ? _postType$labels$attr : (0,external_wp_i18n_namespaceObject.__)('Page attributes'),
-    opened: isOpened,
-    onToggle: onTogglePanel
-  }, (0,external_React_namespaceObject.createElement)(external_wp_editor_namespaceObject.PageAttributesParent, null), (0,external_React_namespaceObject.createElement)(external_wp_components_namespaceObject.PanelRow, null, (0,external_React_namespaceObject.createElement)(external_wp_editor_namespaceObject.PageAttributesOrder, null))));
-}
-/* harmony default export */ var page_attributes = (PageAttributes);
 
 ;// CONCATENATED MODULE: ./packages/edit-post/build-module/components/meta-boxes/meta-boxes-area/index.js
 
@@ -6937,10 +6459,6 @@ function MetaBoxesArea({
 
 
 
-/**
- * Internal dependencies
- */
-
 class MetaBoxVisibility extends external_wp_element_namespaceObject.Component {
   componentDidMount() {
     this.updateDOM();
@@ -6972,7 +6490,7 @@ class MetaBoxVisibility extends external_wp_element_namespaceObject.Component {
 /* harmony default export */ var meta_box_visibility = ((0,external_wp_data_namespaceObject.withSelect)((select, {
   id
 }) => ({
-  isVisible: select(store_store).isEditorPanelEnabled(`meta-box-${id}`)
+  isVisible: select(external_wp_editor_namespaceObject.store).isEditorPanelEnabled(`meta-box-${id}`)
 }))(MetaBoxVisibility));
 
 ;// CONCATENATED MODULE: ./packages/edit-post/build-module/components/meta-boxes/index.js
@@ -7046,10 +6564,10 @@ var external_wp_warning_namespaceObject = window["wp"]["warning"];
 
 
 
+
 /**
  * Internal dependencies
  */
-
 
 const {
   Fill: plugin_document_setting_panel_Fill,
@@ -7126,7 +6644,7 @@ const PluginDocumentSettingPanel = ({
     const {
       isEditorPanelOpened,
       isEditorPanelEnabled
-    } = select(store_store);
+    } = select(external_wp_editor_namespaceObject.store);
     return {
       opened: isEditorPanelOpened(panelName),
       isEnabled: isEditorPanelEnabled(panelName)
@@ -7134,7 +6652,7 @@ const PluginDocumentSettingPanel = ({
   }, [panelName]);
   const {
     toggleEditorPanelOpened
-  } = (0,external_wp_data_namespaceObject.useDispatch)(store_store);
+  } = (0,external_wp_data_namespaceObject.useDispatch)(external_wp_editor_namespaceObject.store);
   if (undefined === name) {
      false ? 0 : void 0;
   }
@@ -7333,12 +6851,6 @@ function TemplateSummary() {
 
 
 
-
-
-
-
-
-
 const {
   Tabs: settings_sidebar_Tabs
 } = unlock(external_wp_components_namespaceObject.privateApis);
@@ -7381,7 +6893,7 @@ const SidebarContent = ({
   }, (0,external_React_namespaceObject.createElement)(settings_sidebar_Tabs.TabPanel, {
     tabId: sidebars.document,
     focusable: false
-  }, !isTemplateMode && (0,external_React_namespaceObject.createElement)(external_React_namespaceObject.Fragment, null, (0,external_React_namespaceObject.createElement)(PostStatus, null), (0,external_React_namespaceObject.createElement)(plugin_document_setting_panel.Slot, null), (0,external_React_namespaceObject.createElement)(last_revision, null), (0,external_React_namespaceObject.createElement)(post_taxonomies, null), (0,external_React_namespaceObject.createElement)(featured_image, null), (0,external_React_namespaceObject.createElement)(PostExcerpt, null), (0,external_React_namespaceObject.createElement)(discussion_panel, null), (0,external_React_namespaceObject.createElement)(page_attributes, null), (0,external_React_namespaceObject.createElement)(MetaBoxes, {
+  }, !isTemplateMode && (0,external_React_namespaceObject.createElement)(external_React_namespaceObject.Fragment, null, (0,external_React_namespaceObject.createElement)(PostStatus, null), (0,external_React_namespaceObject.createElement)(plugin_document_setting_panel.Slot, null), (0,external_React_namespaceObject.createElement)(external_wp_editor_namespaceObject.PostLastRevisionPanel, null), (0,external_React_namespaceObject.createElement)(external_wp_editor_namespaceObject.PostTaxonomiesPanel, null), (0,external_React_namespaceObject.createElement)(external_wp_editor_namespaceObject.PostFeaturedImagePanel, null), (0,external_React_namespaceObject.createElement)(external_wp_editor_namespaceObject.PostExcerptPanel, null), (0,external_React_namespaceObject.createElement)(external_wp_editor_namespaceObject.PostDiscussionPanel, null), (0,external_React_namespaceObject.createElement)(external_wp_editor_namespaceObject.PageAttributesPanel, null), (0,external_React_namespaceObject.createElement)(MetaBoxes, {
     location: "side"
   })), isTemplateMode && (0,external_React_namespaceObject.createElement)(template_summary, null)), (0,external_React_namespaceObject.createElement)(settings_sidebar_Tabs.TabPanel, {
     tabId: sidebars.block,
@@ -8055,7 +7567,6 @@ function useCommonCommands() {
     openGeneralSidebar,
     closeGeneralSidebar,
     switchEditorMode,
-    setIsListViewOpened,
     toggleDistractionFree
   } = (0,external_wp_data_namespaceObject.useDispatch)(store_store);
   const {
@@ -8071,9 +7582,11 @@ function useCommonCommands() {
   } = (0,external_wp_data_namespaceObject.useSelect)(select => {
     const {
       getEditorMode,
-      isListViewOpened,
       isFeatureActive
     } = select(store_store);
+    const {
+      isListViewOpened
+    } = select(external_wp_editor_namespaceObject.store);
     return {
       activeSidebar: select(store).getActiveComplementaryArea(store_store.name),
       editorMode: getEditorMode(),
@@ -8090,7 +7603,8 @@ function useCommonCommands() {
     createInfoNotice
   } = (0,external_wp_data_namespaceObject.useDispatch)(external_wp_notices_namespaceObject.store);
   const {
-    __unstableSaveForPreview
+    __unstableSaveForPreview,
+    setIsListViewOpened
   } = (0,external_wp_data_namespaceObject.useDispatch)(external_wp_editor_namespaceObject.store);
   const {
     getCurrentPostId
@@ -8359,12 +7873,14 @@ function Layout() {
   const isLargeViewport = (0,external_wp_compose_namespaceObject.useViewportMatch)('medium');
   const {
     openGeneralSidebar,
-    closeGeneralSidebar,
-    setIsInserterOpened
+    closeGeneralSidebar
   } = (0,external_wp_data_namespaceObject.useDispatch)(store_store);
   const {
     createErrorNotice
   } = (0,external_wp_data_namespaceObject.useDispatch)(external_wp_notices_namespaceObject.store);
+  const {
+    setIsInserterOpened
+  } = (0,external_wp_data_namespaceObject.useDispatch)(external_wp_editor_namespaceObject.store);
   const {
     mode,
     isFullscreenActive,
@@ -8392,8 +7908,8 @@ function Layout() {
       showMetaBoxes: select(external_wp_editor_namespaceObject.store).getRenderingMode() === 'post-only',
       sidebarIsOpened: !!(select(store).getActiveComplementaryArea(store_store.name) || select(store_store).isPublishSidebarOpened()),
       isFullscreenActive: select(store_store).isFeatureActive('fullscreenMode'),
-      isInserterOpened: select(store_store).isInserterOpened(),
-      isListViewOpened: select(store_store).isListViewOpened(),
+      isInserterOpened: select(external_wp_editor_namespaceObject.store).isInserterOpened(),
+      isListViewOpened: select(external_wp_editor_namespaceObject.store).isListViewOpened(),
       mode: select(store_store).getEditorMode(),
       isRichEditingEnabled: editorSettings.richEditingEnabled,
       hasActiveMetaboxes: select(store_store).hasMetaBoxes(),
@@ -8404,7 +7920,7 @@ function Layout() {
       showBlockBreadcrumbs: select(store_store).isFeatureActive('showBlockBreadcrumbs'),
       // translators: Default label for the Document in the Block Breadcrumb.
       documentLabel: postTypeLabel || (0,external_wp_i18n_namespaceObject._x)('Document', 'noun'),
-      hasBlockSelected: select(external_wp_blockEditor_namespaceObject.store).getBlockSelectionStart()
+      hasBlockSelected: !!select(external_wp_blockEditor_namespaceObject.store).getBlockSelectionStart()
     };
   }, []);
 
@@ -8429,7 +7945,6 @@ function Layout() {
   // Local state for save panel.
   // Note 'truthy' callback implies an open panel.
   const [entitiesSavedStatesCallback, setEntitiesSavedStatesCallback] = (0,external_wp_element_namespaceObject.useState)(false);
-  const [listViewToggleElement, setListViewToggleElement] = (0,external_wp_element_namespaceObject.useState)(null);
   const closeEntitiesSavedStates = (0,external_wp_element_namespaceObject.useCallback)(arg => {
     if (typeof entitiesSavedStatesCallback === 'function') {
       entitiesSavedStatesCallback(arg);
@@ -8455,9 +7970,7 @@ function Layout() {
       return (0,external_React_namespaceObject.createElement)(InserterSidebar, null);
     }
     if (mode === 'visual' && isListViewOpened) {
-      return (0,external_React_namespaceObject.createElement)(ListViewSidebar, {
-        listViewToggleElement: listViewToggleElement
-      });
+      return (0,external_React_namespaceObject.createElement)(ListViewSidebar, null);
     }
     return null;
   };
@@ -8475,8 +7988,7 @@ function Layout() {
       secondarySidebar: secondarySidebarLabel
     },
     header: (0,external_React_namespaceObject.createElement)(header, {
-      setEntitiesSavedStatesCallback: setEntitiesSavedStatesCallback,
-      setListViewToggleElement: setListViewToggleElement
+      setEntitiesSavedStatesCallback: setEntitiesSavedStatesCallback
     }),
     editorNotices: (0,external_React_namespaceObject.createElement)(external_wp_editor_namespaceObject.EditorNotices, null),
     secondarySidebar: secondarySidebar(),
@@ -8644,6 +8156,7 @@ function Editor({
 }) {
   const isLargeViewport = (0,external_wp_compose_namespaceObject.useViewportMatch)('medium');
   const {
+    allowRightClickOverrides,
     hasFixedToolbar,
     focusMode,
     isDistractionFree,
@@ -8689,6 +8202,7 @@ function Editor({
     const isViewable = (_getPostType$viewable = getPostType(postType)?.viewable) !== null && _getPostType$viewable !== void 0 ? _getPostType$viewable : false;
     const canEditTemplate = canUser('create', 'templates');
     return {
+      allowRightClickOverrides: isFeatureActive('allowRightClickOverrides'),
       hasFixedToolbar: isFeatureActive('fixedToolbar') || !isLargeViewport,
       focusMode: isFeatureActive('focusMode'),
       isDistractionFree: isFeatureActive('distractionFree'),
@@ -8702,8 +8216,7 @@ function Editor({
     };
   }, [postType, postId, isLargeViewport]);
   const {
-    updatePreferredStyleVariations,
-    setIsInserterOpened
+    updatePreferredStyleVariations
   } = (0,external_wp_data_namespaceObject.useDispatch)(store_store);
   const editorSettings = (0,external_wp_element_namespaceObject.useMemo)(() => {
     const result = {
@@ -8716,8 +8229,7 @@ function Editor({
       focusMode,
       isDistractionFree,
       hasInlineToolbar,
-      // This is marked as experimental to give time for the quick inserter to mature.
-      __experimentalSetIsInserterOpened: setIsInserterOpened,
+      allowRightClickOverrides,
       keepCaretInsideBlock,
       // Keep a reference of the `allowedBlockTypes` from the server to handle use cases
       // where we need to differentiate if a block is disabled by the user or some plugin.
@@ -8735,7 +8247,7 @@ function Editor({
       result.allowedBlockTypes = defaultAllowedBlockTypes.filter(type => !hiddenBlockTypes.includes(type));
     }
     return result;
-  }, [settings, hasFixedToolbar, hasInlineToolbar, focusMode, isDistractionFree, hiddenBlockTypes, blockTypes, preferredStyleVariations, setIsInserterOpened, updatePreferredStyleVariations, keepCaretInsideBlock]);
+  }, [settings, allowRightClickOverrides, hasFixedToolbar, hasInlineToolbar, focusMode, isDistractionFree, hiddenBlockTypes, blockTypes, preferredStyleVariations, updatePreferredStyleVariations, keepCaretInsideBlock]);
   if (!post) {
     return null;
   }
@@ -9016,6 +8528,10 @@ function PluginSidebarMoreMenuItem(props) {
 
 
 
+const {
+  PluginPostExcerpt: __experimentalPluginPostExcerpt
+} = unlock(external_wp_editor_namespaceObject.privateApis);
+
 /**
  * Initializes and returns an instance of Editor.
  *
@@ -9031,6 +8547,7 @@ function initializeEditor(id, postType, postId, settings, initialEdits) {
   const target = document.getElementById(id);
   const root = (0,external_wp_element_namespaceObject.createRoot)(target);
   (0,external_wp_data_namespaceObject.dispatch)(external_wp_preferences_namespaceObject.store).setDefaults('core/edit-post', {
+    allowRightClickOverrides: true,
     editorMode: 'visual',
     fixedToolbar: false,
     fullscreenMode: true,
@@ -9051,7 +8568,7 @@ function initializeEditor(id, postType, postId, settings, initialEdits) {
   // Check if the block list view should be open by default.
   // If `distractionFree` mode is enabled, the block list view should not be open.
   if ((0,external_wp_data_namespaceObject.select)(store_store).isFeatureActive('showListViewByDefault') && !(0,external_wp_data_namespaceObject.select)(store_store).isFeatureActive('distractionFree')) {
-    (0,external_wp_data_namespaceObject.dispatch)(store_store).setIsListViewOpened(true);
+    (0,external_wp_data_namespaceObject.dispatch)(external_wp_editor_namespaceObject.store).setIsListViewOpened(true);
   }
   (0,external_wp_blockLibrary_namespaceObject.registerCoreBlocks)();
   (0,external_wp_widgets_namespaceObject.registerLegacyWidgetBlock)({

@@ -1129,19 +1129,30 @@ function PartialSyncingControls({
   setAttributes
 }) {
   const syncedAttributes = PARTIAL_SYNCING_SUPPORTED_BLOCKS[name];
-  function updateConnections(attributeName, isChecked) {
-    if (!isChecked) {
-      let updatedConnections = {
-        ...attributes.connections,
-        attributes: {
-          ...attributes.connections?.attributes,
-          [attributeName]: undefined
-        }
-      };
-      if (Object.keys(updatedConnections.attributes).length === 1) {
-        updatedConnections.attributes = undefined;
+  const attributeSources = Object.keys(syncedAttributes).map(attributeName => attributes.connections?.attributes?.[attributeName]?.source);
+  const isConnectedToOtherSources = attributeSources.every(source => source && source !== 'pattern_attributes');
+
+  // Render nothing if all supported attributes are connected to other sources.
+  if (isConnectedToOtherSources) {
+    return null;
+  }
+  function updateConnections(isChecked) {
+    let updatedConnections = {
+      ...attributes.connections,
+      attributes: {
+        ...attributes.connections?.attributes
       }
-      if (Object.keys(updatedConnections).length === 1 && updateConnections.attributes === undefined) {
+    };
+    if (!isChecked) {
+      for (const attributeName of Object.keys(syncedAttributes)) {
+        if (updatedConnections.attributes[attributeName]?.source === 'pattern_attributes') {
+          delete updatedConnections.attributes[attributeName];
+        }
+      }
+      if (!Object.keys(updatedConnections.attributes).length) {
+        delete updatedConnections.attributes;
+      }
+      if (!Object.keys(updatedConnections).length) {
         updatedConnections = undefined;
       }
       setAttributes({
@@ -1149,15 +1160,13 @@ function PartialSyncingControls({
       });
       return;
     }
-    const updatedConnections = {
-      ...attributes.connections,
-      attributes: {
-        ...attributes.connections?.attributes,
-        [attributeName]: {
+    for (const attributeName of Object.keys(syncedAttributes)) {
+      if (!updatedConnections.attributes[attributeName]) {
+        updatedConnections.attributes[attributeName] = {
           source: 'pattern_attributes'
-        }
+        };
       }
-    };
+    }
     if (typeof attributes.metadata?.id === 'string') {
       setAttributes({
         connections: updatedConnections
@@ -1177,15 +1186,14 @@ function PartialSyncingControls({
     group: "advanced"
   }, (0,external_React_namespaceObject.createElement)(external_wp_components_namespaceObject.BaseControl, {
     __nextHasNoMarginBottom: true
-  }, (0,external_React_namespaceObject.createElement)(external_wp_components_namespaceObject.BaseControl.VisualLabel, null, (0,external_wp_i18n_namespaceObject.__)('Synced attributes')), Object.entries(syncedAttributes).map(([attributeName, label]) => (0,external_React_namespaceObject.createElement)(external_wp_components_namespaceObject.CheckboxControl, {
-    key: attributeName,
+  }, (0,external_React_namespaceObject.createElement)(external_wp_components_namespaceObject.BaseControl.VisualLabel, null, (0,external_wp_i18n_namespaceObject.__)('Pattern overrides')), (0,external_React_namespaceObject.createElement)(external_wp_components_namespaceObject.CheckboxControl, {
     __nextHasNoMarginBottom: true,
-    label: label,
-    checked: attributes.connections?.attributes?.[attributeName]?.source === 'pattern_attributes',
+    label: (0,external_wp_i18n_namespaceObject.__)('Allow instance overrides'),
+    checked: attributeSources.some(source => source === 'pattern_attributes'),
     onChange: isChecked => {
-      updateConnections(attributeName, isChecked);
+      updateConnections(isChecked);
     }
-  }))));
+  })));
 }
 /* harmony default export */ var partial_syncing_controls = (PartialSyncingControls);
 
